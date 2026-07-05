@@ -1,0 +1,446 @@
+import React, { useState, useEffect } from 'react';
+import Navbar from './components/Navbar';
+import ToolGrid from './components/ToolGrid';
+import MergePDFTool from './components/MergePDFTool';
+import SplitPDFTool from './components/SplitPDFTool';
+import CompressPDFTool from './components/CompressPDFTool';
+import PDFMetadataTool from './components/PDFMetadataTool';
+import RotatePDFTool from './components/RotatePDFTool';
+import WatermarkPDFTool from './components/WatermarkPDFTool';
+import PasswordProtectPDFTool from './components/PasswordProtectPDFTool';
+import PDFToImageTool from './components/PDFToImageTool';
+import ImageToPDFTool from './components/ImageToPDFTool';
+import ImageConverterTool from './components/ImageConverterTool';
+import OCRScanTool from './components/OCRScanTool';
+import AIFixTool from './components/AIFixTool';
+import SaaSAdminDashboard from './components/SaaSAdminDashboard';
+import { SaaSDB } from './lib/saasDb';
+import { Sparkles, Layers, ShieldCheck, Mail, GitBranch, Terminal } from 'lucide-react';
+
+export default function App() {
+  const [currentView, setView] = useState<string>('dashboard');
+  const [darkMode, setDarkMode] = useState<boolean>(true);
+  const [showShortcutsLegend, setShowShortcutsLegend] = useState<boolean>(false);
+  const [adsterraLink, setAdsterraLink] = useState<string>('https://www.profitablecpmgate.com/o84mgnk2?key=38198f7df43e93657788ea12030b65f3');
+  const [adsterraActive, setAdsterraActive] = useState<boolean>(true);
+
+  // Sync active Adsterra config on load and view changes
+  useEffect(() => {
+    const fetchAdsterraConfig = async () => {
+      try {
+        const settings = await SaaSDB.getSettings();
+        if (settings) {
+          if (settings.adsterraDirectLink) {
+            setAdsterraLink(settings.adsterraDirectLink);
+          }
+          if (settings.adsterraActive !== undefined) {
+            setAdsterraActive(settings.adsterraActive);
+          }
+        }
+      } catch (err) {
+        console.error('Failed to load Adsterra config:', err);
+      }
+    };
+    fetchAdsterraConfig();
+  }, [currentView]);
+
+  // Sync dark mode class to HTML element for full tailwind support if needed
+  useEffect(() => {
+    const root = window.document.documentElement;
+    if (darkMode) {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+  }, [darkMode]);
+
+  // Handle back to top on view changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentView]);
+
+  // Listen for global Escape key and ? key for shortcuts overlay
+  useEffect(() => {
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      const activeEl = document.activeElement;
+      const isInput = activeEl && (activeEl.tagName === 'INPUT' || activeEl.tagName === 'TEXTAREA');
+
+      if (e.key === 'Escape') {
+        if (isInput) {
+          (activeEl as HTMLElement).blur();
+          return;
+        }
+        
+        if (showShortcutsLegend) {
+          setShowShortcutsLegend(false);
+          return;
+        }
+
+        if (currentView !== 'dashboard') {
+          setView('dashboard');
+        }
+      } else if (e.key === '?' && !isInput) {
+        e.preventDefault();
+        setShowShortcutsLegend(prev => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown);
+  }, [currentView, showShortcutsLegend]);
+
+  return (
+    <div className={`min-h-screen flex flex-col transition-colors duration-300 ${
+      darkMode ? 'bg-[#121211] text-[#eae7e0] font-sans' : 'bg-[#FAF9F5] text-[#1c1c1a] font-sans'
+    }`}>
+      
+      {/* Primary Navigation Header */}
+      <Navbar 
+        currentView={currentView} 
+        setView={setView} 
+        darkMode={darkMode} 
+        setDarkMode={setDarkMode} 
+        adsterraLink={adsterraLink}
+        adsterraActive={adsterraActive}
+      />
+
+      {/* Main Content Stage */}
+      <main className="flex-grow">
+        {currentView === 'dashboard' && (
+          <ToolGrid 
+            darkMode={darkMode} 
+            onSelectTool={(toolId) => setView(toolId)} 
+            adsterraLink={adsterraLink}
+            adsterraActive={adsterraActive}
+          />
+        )}
+        {currentView === 'merge-pdf' && (
+          <MergePDFTool 
+            darkMode={darkMode} 
+            setView={setView} 
+            adsterraLink={adsterraLink}
+            adsterraActive={adsterraActive}
+          />
+        )}
+        {currentView === 'split-pdf' && (
+          <SplitPDFTool 
+            darkMode={darkMode} 
+            setView={setView} 
+            adsterraLink={adsterraLink}
+            adsterraActive={adsterraActive}
+          />
+        )}
+        {currentView === 'compress-pdf' && (
+          <CompressPDFTool 
+            darkMode={darkMode} 
+            setView={setView} 
+            adsterraLink={adsterraLink}
+            adsterraActive={adsterraActive}
+          />
+        )}
+        {currentView === 'view-metadata' && (
+          <PDFMetadataTool 
+            darkMode={darkMode} 
+            setView={setView} 
+          />
+        )}
+        {currentView === 'rotate-pdf' && (
+          <RotatePDFTool 
+            darkMode={darkMode} 
+            setView={setView} 
+          />
+        )}
+        {currentView === 'watermark-pdf' && (
+          <WatermarkPDFTool 
+            darkMode={darkMode} 
+            setView={setView} 
+          />
+        )}
+        {currentView === 'encrypt-pdf' && (
+          <PasswordProtectPDFTool 
+            darkMode={darkMode} 
+            setView={setView} 
+          />
+        )}
+        {currentView === 'pdf-to-image' && (
+          <PDFToImageTool 
+            darkMode={darkMode} 
+            setView={setView} 
+          />
+        )}
+        {currentView === 'image-to-pdf' && (
+          <ImageToPDFTool 
+            darkMode={darkMode} 
+            setView={setView} 
+          />
+        )}
+        {currentView === 'image-converter' && (
+          <ImageConverterTool 
+            darkMode={darkMode} 
+            setView={setView} 
+          />
+        )}
+        {currentView === 'ocr-scan' && (
+          <OCRScanTool 
+            darkMode={darkMode} 
+            setView={setView} 
+          />
+        )}
+        {currentView === 'ai-fix' && (
+          <AIFixTool 
+            darkMode={darkMode} 
+            setView={setView} 
+          />
+        )}
+        {currentView === 'saas-admin' && (
+          <SaaSAdminDashboard 
+            darkMode={darkMode} 
+            setView={setView} 
+          />
+        )}
+
+        {/* Fallback View for clicked items under construction */}
+        {!['dashboard', 'merge-pdf', 'split-pdf', 'compress-pdf', 'pdf-to-image', 'image-to-pdf', 'image-converter', 'ocr-scan', 'ai-fix', 'view-metadata', 'rotate-pdf', 'watermark-pdf', 'encrypt-pdf', 'saas-admin'].includes(currentView) && (
+          <div className="max-w-xl mx-auto px-6 py-24 text-center">
+            <div className={`w-12 h-12 rounded-none border flex items-center justify-center mx-auto mb-6 ${
+              darkMode ? 'border-[#333331] text-[#bfa15f]/80' : 'border-[#e5e0d4] text-[#8c1d1a]'
+            }`}>
+              <Terminal className="w-5 h-5 animate-pulse" />
+            </div>
+            <h2 className={`text-3xl font-serif font-medium mb-3 italic tracking-tight ${
+              darkMode ? 'text-white' : 'text-stone-900'
+            }`}>
+              Under Editorial Review
+            </h2>
+            <p className={`text-xs font-serif leading-relaxed mb-8 max-w-md mx-auto ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
+              The utility <span className="font-bold underline tracking-wide uppercase font-sans text-[10px]">"{currentView.replace('-', ' ')}"</span> is currently in production in our offline typesetting studio.
+            </p>
+            
+            <div className={`p-5 rounded-none border text-left mb-8 flex items-start gap-4 ${
+              darkMode ? 'bg-[#181817] border-[#2c2c2a]' : 'bg-[#fcfbf9] border-[#e6e1d5]'
+            }`}>
+              <Sparkles className={`w-4 h-4 shrink-0 mt-0.5 ${darkMode ? 'text-[#bfa15f]' : 'text-[#8c1d1a]'}`} />
+              <div>
+                <p className="text-[11px] font-sans font-bold uppercase tracking-wider">Typesetting Staging Active</p>
+                <p className={`text-[11px] font-serif leading-normal mt-1.5 ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
+                  Our production-grade <strong className="font-sans">Merge PDF</strong>, <strong className="font-sans">Split PDF</strong>, and <strong className="font-sans">Compress PDF</strong> layouts are fully typeset and operational.
+                </p>
+              </div>
+            </div>
+
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={() => setView('dashboard')}
+                className={`px-6 py-2 text-xs font-sans font-bold uppercase tracking-widest transition-all ${
+                  darkMode 
+                    ? 'bg-[#eae7e0] text-[#121211] hover:bg-[#eae7e0]/90' 
+                    : 'bg-[#1c1c1a] text-[#FAF9F5] hover:bg-[#1c1c1a]/90'
+                }`}
+              >
+                Go Back
+              </button>
+              <button
+                onClick={() => setView('merge-pdf')}
+                className={`px-6 py-2 text-xs font-sans font-bold uppercase tracking-widest border transition-all ${
+                  darkMode 
+                    ? 'border-[#3a3a38] text-stone-300 hover:bg-[#1c1c1a]' 
+                    : 'border-[#d8d4ca] text-stone-700 hover:bg-[#eae7e0]/20'
+                }`}
+              >
+                Try Merge
+              </button>
+            </div>
+          </div>
+        )}
+      </main>
+
+      {/* Global Application Footer */}
+      <footer className={`border-t py-16 transition-colors duration-200 ${
+        darkMode ? 'bg-[#0d0d0d] border-[#20201f] text-stone-400' : 'bg-[#FAF9F5] border-[#eae6db] text-stone-600'
+      }`}>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-12 border-b pb-12 border-dashed border-[#e6e2d8] dark:border-[#2a2a29]">
+            
+            {/* Column 1 Logo */}
+            <div className="space-y-4 md:col-span-2">
+              <div className="flex items-center gap-2">
+                <div className={`p-1 border ${darkMode ? 'border-[#333331] text-[#bfa15f]' : 'border-[#d8d4ca] text-[#8c1d1a]'}`}>
+                  <Layers className="w-4 h-4" />
+                </div>
+                <span className={`font-serif text-lg font-bold tracking-tight ${darkMode ? 'text-white' : 'text-stone-900'}`}>
+                  Util<span className="italic font-normal">Doc</span>
+                </span>
+              </div>
+              <p className="text-xs font-serif leading-relaxed max-w-sm">
+                A high-performance, browser-local digital printing press. Files are processed client-side with absolute security inside your active tab context. No server records, no diagnostic footprints.
+              </p>
+              <div className="flex items-center gap-1.5 text-[9px] font-mono tracking-widest uppercase">
+                <span className="w-1.5 h-1.5 rounded-full bg-stone-400 dark:bg-stone-500"></span>
+                <span>Typesetting Sandbox Online</span>
+              </div>
+            </div>
+
+            {/* Column 2 Services */}
+            <div>
+              <h4 className={`text-xs font-sans font-bold uppercase tracking-widest mb-6 ${darkMode ? 'text-[#bfa15f]' : 'text-[#8c1d1a]'}`}>Core Utilities</h4>
+              <ul className="space-y-3 text-xs font-serif">
+                <li><button onClick={() => setView('merge-pdf')} className="hover:underline hover:text-stone-900 dark:hover:text-white transition-colors">Merge PDF Documents</button></li>
+                <li><button onClick={() => setView('split-pdf')} className="hover:underline hover:text-stone-900 dark:hover:text-white transition-colors">Split PDF Pages</button></li>
+                <li><button onClick={() => setView('compress-pdf')} className="hover:underline hover:text-stone-900 dark:hover:text-white transition-colors">Compress PDF Stream</button></li>
+                <li><button onClick={() => setView('view-metadata')} className="hover:underline hover:text-stone-900 dark:hover:text-white transition-colors">View PDF Metadata</button></li>
+                <li><button onClick={() => setView('rotate-pdf')} className="hover:underline hover:text-stone-900 dark:hover:text-white transition-colors">Rotate PDF Pages</button></li>
+                <li><button onClick={() => setView('watermark-pdf')} className="hover:underline hover:text-stone-900 dark:hover:text-white transition-colors">PDF Watermark Board</button></li>
+                <li><button onClick={() => setView('encrypt-pdf')} className="hover:underline hover:text-stone-900 dark:hover:text-white transition-colors">Secure / Encrypt PDF</button></li>
+                {adsterraActive && (
+                  <li>
+                    <a 
+                      href={adsterraLink} 
+                      target="_blank" 
+                      rel="noopener noreferrer" 
+                      className="hover:underline text-[#bfa15f] dark:text-[#bfa15f] hover:text-[#bfa15f]/80 transition-colors font-sans font-bold flex items-center gap-1"
+                    >
+                      <Sparkles className="w-3 h-3 animate-pulse" /> Support Us (Ads)
+                    </a>
+                  </li>
+                )}
+              </ul>
+            </div>
+
+            {/* Column 3 Privacy */}
+            <div className="space-y-4">
+              <h4 className={`text-xs font-sans font-bold uppercase tracking-widest mb-6 ${darkMode ? 'text-[#bfa15f]' : 'text-[#8c1d1a]'}`}>Typeset Security</h4>
+              <div className={`p-4 rounded-none border flex items-start gap-3 ${
+                darkMode ? 'bg-[#141413] border-[#2c2c2a]' : 'bg-[#FAF9F5] border-[#eae6db]'
+              }`}>
+                <ShieldCheck className={`w-5 h-5 shrink-0 mt-0.5 ${darkMode ? 'text-[#bfa15f]' : 'text-[#8c1d1a]'}`} />
+                <p className="text-[11px] font-serif leading-normal">
+                  Our offline model ensures files remain strictly local. No metadata headers are serialized or transmitted across client buffers.
+                </p>
+              </div>
+            </div>
+
+          </div>
+
+          {/* Bottom Copyright line */}
+          <div className="mt-8 pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-serif text-stone-500">
+            <p>© {new Date().getFullYear()} UtilDoc Studio. All documents processed on local paper.</p>
+            <div className="flex items-center gap-4 font-sans text-[10px] tracking-wider uppercase">
+              <a href="#" className="hover:underline">Security Protocol</a>
+              <span>•</span>
+              <a href="#" className="hover:underline">Sandbox Charter</a>
+              <span>•</span>
+              <a href="#" className="hover:underline flex items-center gap-1">
+                <GitBranch className="w-3 h-3" /> v4.2-Editorial
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </footer>
+
+      {/* Global Keyboard Shortcut Helper Badge */}
+      {currentView !== 'dashboard' && currentView !== 'pricing' && (
+        <div 
+          onClick={() => setShowShortcutsLegend(true)}
+          className="fixed bottom-6 right-6 z-40 hidden md:block cursor-pointer group"
+          title="Click to view all keyboard shortcuts"
+        >
+          <div className={`px-3 py-1.5 text-[10px] font-sans font-bold tracking-wider uppercase border flex items-center gap-3 shadow-xl select-none transition-all duration-200 group-hover:scale-105 ${
+            darkMode 
+              ? 'bg-[#181817] border-[#2c2c2a] text-[#bfa15f]/90 group-hover:border-[#bfa15f]/40 group-hover:text-[#bfa15f]' 
+              : 'bg-[#FAF9F5] border-[#e6e2d8] text-[#8c1d1a]/90 group-hover:border-[#8c1d1a]/40 group-hover:text-[#8c1d1a]'
+          }`}>
+            <span className="flex items-center gap-1">
+              <kbd className={`px-1 py-0.5 border text-[8px] font-mono leading-none rounded-sm ${darkMode ? 'bg-stone-900 border-stone-800 text-stone-300' : 'bg-stone-100 border-stone-300 text-stone-600'}`}>Ctrl+S</kbd> Save / Compile
+            </span>
+            <span className={`w-1 h-1 rounded-full ${darkMode ? 'bg-stone-800' : 'bg-stone-300'}`} />
+            <span className="flex items-center gap-1">
+              <kbd className={`px-1 py-0.5 border text-[8px] font-mono leading-none rounded-sm ${darkMode ? 'bg-stone-900 border-stone-800 text-stone-300' : 'bg-stone-100 border-stone-300 text-stone-600'}`}>Esc</kbd> Close Utility
+            </span>
+            <span className={`w-1 h-1 rounded-full ${darkMode ? 'bg-stone-800' : 'bg-stone-300'}`} />
+            <span className={`font-mono text-[9px] ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>[?] Keys</span>
+          </div>
+        </div>
+      )}
+
+      {/* Keyboard Shortcuts Legend Panel Overlay */}
+      {showShortcutsLegend && (
+        <div 
+          className="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in"
+          onClick={() => setShowShortcutsLegend(false)}
+        >
+          <div 
+            className={`w-full max-w-lg p-8 border rounded-none shadow-2xl space-y-6 ${
+              darkMode ? 'bg-[#181817] border-[#2c2c2a] text-[#eae7e0]' : 'bg-[#FAF9F5] border-[#eae6db] text-[#1c1c1a]'
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-dashed pb-4 border-[#e6e2d8] dark:border-[#2a2a29]">
+              <div className="flex items-center gap-2">
+                <Terminal className={`w-4 h-4 ${darkMode ? 'text-[#bfa15f]' : 'text-[#8c1d1a]'}`} />
+                <h3 className="text-sm font-sans font-bold uppercase tracking-wider">UtilDoc Keyboard Shortcuts</h3>
+              </div>
+              <button 
+                onClick={() => setShowShortcutsLegend(false)}
+                className="text-xs font-mono hover:underline uppercase tracking-wider opacity-60"
+              >
+                Close [Esc]
+              </button>
+            </div>
+
+            <div className="space-y-5 text-xs font-serif">
+              <div className="space-y-3">
+                <h4 className="text-[10px] font-sans font-bold uppercase tracking-widest text-stone-400">Global Actions</h4>
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span>Close Active Modal or Return to Catalog</span>
+                    <kbd className={`px-1.5 py-0.5 border text-[10px] font-mono rounded ${darkMode ? 'bg-stone-950 border-stone-800 text-stone-300' : 'bg-stone-50 border-stone-300 text-stone-600'}`}>Esc</kbd>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span>Toggle Shortcut Legend Overlay</span>
+                    <kbd className={`px-1.5 py-0.5 border text-[10px] font-mono rounded ${darkMode ? 'bg-stone-950 border-stone-800 text-stone-300' : 'bg-stone-50 border-stone-300 text-stone-600'}`}>?</kbd>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <h4 className="text-[10px] font-sans font-bold uppercase tracking-widest text-stone-400">Contextual Actions (<kbd className="font-mono">Ctrl+S</kbd> / <kbd className="font-mono">Cmd+S</kbd>)</h4>
+                <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-2">
+                  <div className="flex justify-between items-start gap-4">
+                    <span className="text-[11px] leading-relaxed"><strong className="font-sans font-bold tracking-tight uppercase text-[9px] block text-stone-400">Merge, Split, Compress PDF</strong>Run compilation or download finalized PDF.</span>
+                    <kbd className={`shrink-0 px-1.5 py-0.5 border text-[10px] font-mono rounded ${darkMode ? 'bg-stone-950 border-stone-800' : 'bg-stone-50 border-stone-300'}`}>Ctrl+S</kbd>
+                  </div>
+                  <div className="flex justify-between items-start gap-4">
+                    <span className="text-[11px] leading-relaxed"><strong className="font-sans font-bold tracking-tight uppercase text-[9px] block text-stone-400">Rotate or Watermark PDF</strong>Apply page orientation / overlays, or download output file.</span>
+                    <kbd className={`shrink-0 px-1.5 py-0.5 border text-[10px] font-mono rounded ${darkMode ? 'bg-stone-950 border-stone-800' : 'bg-stone-50 border-stone-300'}`}>Ctrl+S</kbd>
+                  </div>
+                  <div className="flex justify-between items-start gap-4">
+                    <span className="text-[11px] leading-relaxed"><strong className="font-sans font-bold tracking-tight uppercase text-[9px] block text-stone-400">PDF to Image / Image Converter</strong>Rasterize page structures into ZIP collections.</span>
+                    <kbd className={`shrink-0 px-1.5 py-0.5 border text-[10px] font-mono rounded ${darkMode ? 'bg-stone-950 border-stone-800' : 'bg-stone-50 border-stone-300'}`}>Ctrl+S</kbd>
+                  </div>
+                  <div className="flex justify-between items-start gap-4">
+                    <span className="text-[11px] leading-relaxed"><strong className="font-sans font-bold tracking-tight uppercase text-[9px] block text-stone-400">Image to PDF Compiler</strong>Assemble image files into single A4 or Letter publication.</span>
+                    <kbd className={`shrink-0 px-1.5 py-0.5 border text-[10px] font-mono rounded ${darkMode ? 'bg-stone-950 border-stone-800' : 'bg-stone-50 border-stone-300'}`}>Ctrl+S</kbd>
+                  </div>
+                  <div className="flex justify-between items-start gap-4">
+                    <span className="text-[11px] leading-relaxed"><strong className="font-sans font-bold tracking-tight uppercase text-[9px] block text-stone-400">AI OCR Scan & Text Fix</strong>Compile AI scan / correction rules, or download text file.</span>
+                    <kbd className={`shrink-0 px-1.5 py-0.5 border text-[10px] font-mono rounded ${darkMode ? 'bg-stone-950 border-stone-800' : 'bg-stone-50 border-stone-300'}`}>Ctrl+S</kbd>
+                  </div>
+                  <div className="flex justify-between items-start gap-4">
+                    <span className="text-[11px] leading-relaxed"><strong className="font-sans font-bold tracking-tight uppercase text-[9px] block text-stone-400">PDF Metadata Dictionary</strong>Hydrate Tax Review sample, or export report schema as JSON.</span>
+                    <kbd className={`shrink-0 px-1.5 py-0.5 border text-[10px] font-mono rounded ${darkMode ? 'bg-stone-950 border-stone-800' : 'bg-stone-50 border-stone-300'}`}>Ctrl+S</kbd>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className={`pt-4 border-t border-dashed text-[10px] font-mono text-center flex items-center justify-center gap-1.5 ${darkMode ? 'border-stone-800 text-stone-500' : 'border-[#e6e2d8] text-stone-400'}`}>
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>UtilDoc Studio • Interactive Typography Core</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+    </div>
+  );
+}

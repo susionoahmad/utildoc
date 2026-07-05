@@ -1,0 +1,6 @@
+{
+  "name": "UtilDoc",
+  "description": "Professional browser-side document suite offering PDF Merge, Split, Convert, and Compress utilities with a modern dark/light dashboard.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
