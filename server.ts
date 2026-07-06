@@ -110,26 +110,6 @@ async function startServer() {
 
       const user = await getUserByEmail(email);
       if (!user || hashPassword(password) !== user.passwordHash) {
-        // Mock UI behavior: Auto-register user if they do not exist (matching Navbar.tsx mock behavior)
-        if (!user) {
-          const defaultPasswordHash = hashPassword(password);
-          const newUser = await addUser({
-            email,
-            passwordHash: defaultPasswordHash,
-            name: email.split('@')[0].toUpperCase(),
-            plan: 'starter',
-            status: 'active'
-          });
-
-          const token = crypto.randomBytes(24).toString("hex");
-          SESSIONS.set(token, { id: newUser.id, email: newUser.email, name: newUser.name, plan: newUser.plan });
-
-          return res.json({
-            token,
-            session: { isLoggedIn: true, email: newUser.email, plan: newUser.plan, name: newUser.name }
-          });
-        }
-        
         return res.status(401).json({ error: "Invalid email or password." });
       }
 
