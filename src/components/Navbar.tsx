@@ -495,6 +495,7 @@ export default function Navbar({ currentView, setView, darkMode, setDarkMode, ad
                   </button>
                 </div>
               </form>
+            )}
           </div>
         </div>
       )}
