@@ -45,7 +45,7 @@ export default function PricingPage({ darkMode }: PricingPageProps) {
     setCheckoutStep('loading');
     
     // Determine final email
-    const targetEmail = checkoutEmail.trim() || 'sandbox-buyer@example.com';
+    const targetEmail = checkoutEmail.trim() || 'production-buyer@example.com';
     const planKey = selectedPlan.id as 'pro' | 'enterprise';
     const priceStr = billingCycle === 'annually' ? selectedPlan.priceAnnually : selectedPlan.priceMonthly;
     const amount = parseFloat(priceStr);
@@ -292,7 +292,7 @@ export default function PricingPage({ darkMode }: PricingPageProps) {
                   <div className={`p-2.5 border rounded-none w-fit mb-3 ${darkMode ? 'border-[#333331] text-[#bfa15f]' : 'border-[#e6e2d8] text-[#8c1d1a]'}`}>
                     <Sparkles className="w-5 h-5" />
                   </div>
-                  <h3 className="font-serif font-medium text-xl tracking-tight">Checkout Sandbox</h3>
+                  <h3 className="font-serif font-medium text-xl tracking-tight">Secure Checkout</h3>
                   <p className="text-xs font-serif text-stone-500 mt-1">
                     Complete membership setup for <span className={`font-bold ${darkMode ? 'text-[#bfa15f]' : 'text-[#8c1d1a]'}`}>{selectedPlan.name}</span>.
                   </p>
@@ -426,11 +426,11 @@ export default function PricingPage({ darkMode }: PricingPageProps) {
                 </div>
 
                 <div className="pt-2 border-t border-dashed border-stone-800 flex items-center justify-between text-[10px] font-serif text-stone-500">
-                  <span className="flex items-center gap-1"><ShieldCheck className="w-4 h-4 text-emerald-500" /> Sandbox SSL secure</span>
+                  <span className="flex items-center gap-1"><ShieldCheck className="w-4 h-4 text-emerald-500" /> Secure SSL connection</span>
                   <button
                     type="button"
                     onClick={() => {
-                      setCardHolder('Sandbox Developer');
+                      setCardHolder('Production Developer');
                       setCardNumber('4111 2222 3333 4444');
                       setExpiry('12/28');
                       setCvv('123');
@@ -466,7 +466,7 @@ export default function PricingPage({ darkMode }: PricingPageProps) {
                   <CheckCircle2 className="w-6 h-6" />
                 </div>
                 <h3 className="font-serif font-medium text-xl mb-1 italic">Pro Membership Activated!</h3>
-                <p className="text-xs font-serif text-stone-500 mb-6">Your sandbox profile has been successfully upgraded to {selectedPlan.name}.</p>
+                <p className="text-xs font-serif text-stone-500 mb-6">Your account profile has been successfully upgraded to {selectedPlan.name}.</p>
                 
                 <button
                   onClick={closeCheckout}

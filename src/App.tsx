@@ -275,7 +275,7 @@ export default function App() {
               </p>
               <div className="flex items-center gap-1.5 text-[9px] font-mono tracking-widest uppercase">
                 <span className="w-1.5 h-1.5 rounded-full bg-stone-400 dark:bg-stone-500"></span>
-                <span>Typesetting Sandbox Online</span>
+                <span>Typesetting Service Online</span>
               </div>
             </div>
 
@@ -326,7 +326,7 @@ export default function App() {
             <div className="flex items-center gap-4 font-sans text-[10px] tracking-wider uppercase">
               <a href="#" className="hover:underline">Security Protocol</a>
               <span>•</span>
-              <a href="#" className="hover:underline">Sandbox Charter</a>
+              <a href="#" className="hover:underline">Security Charter</a>
               <span>•</span>
               <a href="#" className="hover:underline flex items-center gap-1">
                 <GitBranch className="w-3 h-3" /> v4.2-Editorial

@@ -363,7 +363,7 @@ export default function Navbar({ currentView, setView, darkMode, setDarkMode, ad
               <button 
                 type="button"
                 onClick={() => {
-                  setEmail('sandbox_developer@utildoc.io');
+                  setEmail('developer@utildoc.io');
                   setPassword('developer-pass');
                   setLoginError('');
                 }}
@@ -371,7 +371,7 @@ export default function Navbar({ currentView, setView, darkMode, setDarkMode, ad
                   darkMode ? 'text-[#bfa15f] hover:text-white' : 'text-[#8c1d1a] hover:text-[#8c1d1a]/80'
                 }`}
               >
-                Click for Sandbox Demo
+                Click for Production Demo
               </button>
             </div>
           </div>

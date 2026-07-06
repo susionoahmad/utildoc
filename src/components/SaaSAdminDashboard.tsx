@@ -504,7 +504,7 @@ export default function SaaSAdminDashboard({ darkMode, setView }: SaaSAdminDashb
             }`}>
               <div>
                 <h4 className="font-serif font-bold text-sm uppercase tracking-wider flex items-center justify-between">
-                  <span>Live Sandbox Stream</span>
+                  <span>Live Production Stream</span>
                   <span className={`inline-block w-2 h-2 rounded-full ${isSimulating ? 'bg-emerald-500 animate-ping' : 'bg-amber-500'}`} />
                 </h4>
                 <p className="text-[10px] font-serif text-stone-500 mt-1">Live requests from global typeset threads. Enable simulation to stream live activity.</p>
