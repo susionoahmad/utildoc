@@ -9,6 +9,7 @@ import { DocumentFile } from '../types';
 import { MOCK_FILES } from '../data';
 import { EditorialProgressBar } from './EditorialProgressBar';
 import { SaaSDB } from '../lib/saasDb';
+import { Language, translations, toolTranslations } from '../lib/translations';
 
 async function generateSamplePdfBytes(name: string, pageCount: number): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.create();
@@ -88,9 +89,11 @@ interface MergePDFToolProps {
   setView: (view: string) => void;
   adsterraLink: string;
   adsterraActive: boolean;
+  lang?: Language;
 }
 
-export default function MergePDFTool({ darkMode, setView, adsterraLink, adsterraActive }: MergePDFToolProps) {
+export default function MergePDFTool({ darkMode, setView, adsterraLink, adsterraActive, lang }: MergePDFToolProps) {
+  const activeLang = lang || 'id';
   const [files, setFiles] = useState<DocumentFile[]>([]);
   const [isMerging, setIsMerging] = useState(false);
   const [mergeProgress, setMergeProgress] = useState(0);
@@ -376,14 +379,16 @@ export default function MergePDFTool({ darkMode, setView, adsterraLink, adsterra
           darkMode ? 'text-stone-400 hover:text-white' : 'text-stone-500 hover:text-stone-900'
         }`}
       >
-        ← Back to All Utilities
+        {translations.nav_back[activeLang]}
       </button>
 
       {/* Header section */}
       <div className="mb-10 pb-6 border-b border-dashed border-[#e6e2d8] dark:border-[#2a2a29]">
-        <h1 className="text-3xl sm:text-4xl font-serif font-light tracking-tight">Merge PDF Documents</h1>
+        <h1 className="text-3xl sm:text-4xl font-serif font-light tracking-tight">
+          {toolTranslations['merge-pdf']?.name[activeLang] || 'Merge PDF Documents'}
+        </h1>
         <p className={`text-xs sm:text-sm font-serif mt-2 ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
-          Combine multiple PDF files into one clean document stream. Arrange files inside the queue index below.
+          {toolTranslations['merge-pdf']?.description[activeLang] || 'Combine multiple PDF files into one clean document stream. Arrange files inside the queue index below.'}
         </p>
       </div>
 
@@ -552,9 +557,13 @@ export default function MergePDFTool({ darkMode, setView, adsterraLink, adsterra
               }`}>
                 <Upload className="w-4 h-4" />
               </div>
-              <h3 className="font-serif font-medium text-lg mb-1.5 italic">Drag & Drop Documents</h3>
+              <h3 className="font-serif font-medium text-lg mb-1.5 italic">
+                {activeLang === 'en' ? 'Drag & Drop Documents' : 'Tarik & Lepas Dokumen di Sini'}
+              </h3>
               <p className={`text-xs font-serif max-w-sm mx-auto mb-6 ${darkMode ? 'text-stone-400' : 'text-stone-500'}`}>
-                Support PDF, PNG, JPG, or JPEG file streams. All calculations executed locally.
+                {activeLang === 'en' 
+                  ? 'Support PDF, PNG, JPG, or JPEG file streams. All calculations executed locally.' 
+                  : 'Mendukung format file PDF, PNG, JPG, atau JPEG. Semua pemrosesan dijalankan secara lokal.'}
               </p>
               
               <div className="flex flex-wrap items-center justify-center gap-3">
@@ -566,7 +575,7 @@ export default function MergePDFTool({ darkMode, setView, adsterraLink, adsterra
                       : 'bg-[#1c1c1a] hover:bg-stone-800 text-white'
                   }`}
                 >
-                  Browse Files
+                  {activeLang === 'en' ? 'Browse Files' : 'Pilih File'}
                 </button>
                 <button
                   type="button"
@@ -580,7 +589,7 @@ export default function MergePDFTool({ darkMode, setView, adsterraLink, adsterra
                       : 'border-[#d8d4ca] text-stone-600 hover:bg-[#FAF9F5]'
                   }`}
                 >
-                  Load Sandbox Samples
+                  {activeLang === 'en' ? 'Load Sandbox Samples' : 'Muat Sampel Uji Coba'}
                 </button>
               </div>
             </div>
@@ -709,7 +718,9 @@ export default function MergePDFTool({ darkMode, setView, adsterraLink, adsterra
               
               <div className="flex items-center gap-2 mb-6 border-b pb-4 border-dashed border-stone-800 dark:border-stone-800">
                 <Settings className={`w-4 h-4 ${darkMode ? 'text-[#bfa15f]' : 'text-[#8c1d1a]'}`} />
-                <h3 className="font-sans font-bold text-xs uppercase tracking-widest">Layout Configurations</h3>
+                <h3 className="font-sans font-bold text-xs uppercase tracking-widest">
+                  {activeLang === 'en' ? 'Layout Configurations' : 'Konfigurasi Tata Letak'}
+                </h3>
               </div>
 
               <div className="space-y-6">
@@ -717,7 +728,7 @@ export default function MergePDFTool({ darkMode, setView, adsterraLink, adsterra
                 {/* 1. Page Range selector */}
                 <div>
                   <label className="block text-[10px] font-sans font-bold uppercase tracking-widest text-stone-400 mb-2.5">
-                    Page Range Settings
+                    {activeLang === 'en' ? 'Page Range Settings' : 'Pengaturan Rentang Halaman'}
                   </label>
                   <div className="grid grid-cols-2 gap-2 mb-2">
                     <button
@@ -730,7 +741,7 @@ export default function MergePDFTool({ darkMode, setView, adsterraLink, adsterra
                             : 'border-stone-300 text-stone-600 hover:bg-[#FAF9F5]'
                       }`}
                     >
-                      All Pages
+                      {activeLang === 'en' ? 'All Pages' : 'Semua Halaman'}
                     </button>
                     <button
                       onClick={() => setPageRange('custom')}
@@ -742,7 +753,7 @@ export default function MergePDFTool({ darkMode, setView, adsterraLink, adsterra
                             : 'border-stone-300 text-stone-600 hover:bg-[#FAF9F5]'
                       }`}
                     >
-                      Custom Select
+                      {activeLang === 'en' ? 'Custom Select' : 'Pilih Khusus'}
                     </button>
                   </div>
                   {pageRange === 'custom' && (
@@ -761,7 +772,7 @@ export default function MergePDFTool({ darkMode, setView, adsterraLink, adsterra
                 {/* 2. Orientation Settings */}
                 <div>
                   <label className="block text-[10px] font-sans font-bold uppercase tracking-widest text-stone-400 mb-2.5">
-                    Output Orientation
+                    {activeLang === 'en' ? 'Output Orientation' : 'Orientasi Halaman'}
                   </label>
                   <div className="grid grid-cols-3 gap-1.5">
                     {['keep', 'portrait', 'landscape'].map((mode) => (
@@ -776,7 +787,12 @@ export default function MergePDFTool({ darkMode, setView, adsterraLink, adsterra
                               : 'border-stone-300 text-stone-600 hover:bg-[#FAF9F5]'
                         }`}
                       >
-                        {mode === 'keep' ? 'Keep' : mode}
+                        {mode === 'keep' 
+                          ? (activeLang === 'en' ? 'Keep' : 'Asli') 
+                          : mode === 'portrait' 
+                            ? (activeLang === 'en' ? 'Portrait' : 'Potret') 
+                            : (activeLang === 'en' ? 'Landscape' : 'Lanskap')
+                        }
                       </button>
                     ))}
                   </div>
@@ -785,13 +801,25 @@ export default function MergePDFTool({ darkMode, setView, adsterraLink, adsterra
                 {/* 3. Compress PDF */}
                 <div>
                   <label className="block text-[10px] font-sans font-bold uppercase tracking-widest text-stone-400 mb-2.5">
-                    Stream Optimization
+                    {activeLang === 'en' ? 'Stream Optimization' : 'Optimasi Pemrosesan'}
                   </label>
                   <div className="space-y-2">
                     {[
-                      { id: 'none', label: 'Maximum Resolution (No Comp.)', desc: 'Preserves raw page rendering metadata.' },
-                      { id: 'recommended', label: 'Recommended Web Comp.', desc: 'High visual parity with optimized size.' },
-                      { id: 'extreme', label: 'Extreme Archive Comp.', desc: 'Lower layout fidelity for fast attachments.' }
+                      { 
+                        id: 'none', 
+                        label: activeLang === 'en' ? 'Maximum Resolution (No Comp.)' : 'Resolusi Maksimum (Tanpa Kompresi)', 
+                        desc: activeLang === 'en' ? 'Preserves raw page rendering metadata.' : 'Mempertahankan metadata rendering halaman asli.' 
+                      },
+                      { 
+                        id: 'recommended', 
+                        label: activeLang === 'en' ? 'Recommended Web Comp.' : 'Kompresi Web Direkomendasikan', 
+                        desc: activeLang === 'en' ? 'High visual parity with optimized size.' : 'Kemiripan visual tinggi dengan ukuran optimal.' 
+                      },
+                      { 
+                        id: 'extreme', 
+                        label: activeLang === 'en' ? 'Extreme Archive Comp.' : 'Kompresi Arsip Ekstrem', 
+                        desc: activeLang === 'en' ? 'Lower layout fidelity for fast attachments.' : 'Ketajaman layout lebih rendah untuk pengiriman cepat.' 
+                      }
                     ].map((opt) => (
                       <label 
                         key={opt.id} 
@@ -829,8 +857,12 @@ export default function MergePDFTool({ darkMode, setView, adsterraLink, adsterra
                       className="mt-0.5 rounded-none border-stone-300 focus:ring-0 bg-transparent"
                     />
                     <div>
-                      <p className="text-xs font-serif font-bold">Generate Index cover page</p>
-                      <p className="text-[10px] font-serif text-stone-500 mt-0.5">Inserts an elegant cover listing document sequence.</p>
+                      <p className="text-xs font-serif font-bold">
+                        {activeLang === 'en' ? 'Generate Index cover page' : 'Buat Halaman Cover Indeks'}
+                      </p>
+                      <p className="text-[10px] font-serif text-stone-500 mt-0.5">
+                        {activeLang === 'en' ? 'Inserts an elegant cover listing document sequence.' : 'Menyisipkan halaman sampul elegan berisi daftar urutan dokumen.'}
+                      </p>
                     </div>
                   </label>
 
@@ -843,8 +875,12 @@ export default function MergePDFTool({ darkMode, setView, adsterraLink, adsterra
                       className="mt-0.5 rounded-none border-stone-300 focus:ring-0 bg-transparent"
                     />
                     <div>
-                      <p className="text-xs font-serif font-bold">Optimize for Fast Web View</p>
-                      <p className="text-[10px] font-serif text-stone-500 mt-0.5">Linearizes PDF object vectors for high-speed delivery.</p>
+                      <p className="text-xs font-serif font-bold">
+                        {activeLang === 'en' ? 'Optimize for Fast Web View' : 'Optimalkan untuk Web Cepat'}
+                      </p>
+                      <p className="text-[10px] font-serif text-stone-500 mt-0.5">
+                        {activeLang === 'en' ? 'Linearizes PDF object vectors for high-speed delivery.' : 'Melakukan linearisasi vektor objek PDF untuk pengiriman data cepat.'}
+                      </p>
                     </div>
                   </label>
 
@@ -868,8 +904,11 @@ export default function MergePDFTool({ darkMode, setView, adsterraLink, adsterra
                 >
                   <RefreshCw className={`w-4 h-4 ${files.length > 0 ? 'animate-spin-slow' : ''}`} />
                   {files.length > 0 
-                    ? `Merge ${files.length} Files (${formatSize(compression === 'extreme' ? totalSize * 0.45 : totalSize * 0.75)})`
-                    : 'Merge Files'
+                    ? (activeLang === 'en' 
+                        ? `Merge ${files.length} Files (${formatSize(compression === 'extreme' ? totalSize * 0.45 : totalSize * 0.75)})`
+                        : `Gabung ${files.length} File (${formatSize(compression === 'extreme' ? totalSize * 0.45 : totalSize * 0.75)})`
+                      )
+                    : (activeLang === 'en' ? 'Merge Files' : 'Gabungkan File')
                   }
                 </button>
               </div>
@@ -882,9 +921,13 @@ export default function MergePDFTool({ darkMode, setView, adsterraLink, adsterra
             }`}>
               <ShieldCheck className={`w-5 h-5 shrink-0 mt-0.5 ${darkMode ? 'text-[#bfa15f]' : 'text-[#8c1d1a]'}`} />
               <div>
-                <p className="text-xs font-serif font-bold">Privacy Sandbox active</p>
+                <p className="text-xs font-serif font-bold">
+                  {activeLang === 'en' ? 'Privacy Sandbox active' : 'Privacy Sandbox Aktif'}
+                </p>
                 <p className="text-[10px] font-serif text-stone-500 leading-normal mt-0.5">
-                  Files processed 100% locally. None of your document bytes ever exit this browser sandbox.
+                  {activeLang === 'en' 
+                    ? 'Files processed 100% locally. None of your document bytes ever exit this browser sandbox.' 
+                    : 'File diproses 100% secara lokal. Tidak ada data dokumen Anda yang keluar dari sandbox browser ini.'}
                 </p>
               </div>
             </div>

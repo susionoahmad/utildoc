@@ -253,9 +253,9 @@ export default function ToolGrid({ darkMode, onSelectTool, adsterraLink, adsterr
           darkMode ? 'border-stone-800 bg-[#181817]' : 'border-stone-300 bg-[#faf9f6]'
         }`}>
           <HelpCircle className="w-10 h-10 text-stone-400 mx-auto mb-4" />
-          <h3 className="font-serif font-medium text-xl">No Matching Utilities</h3>
+          <h3 className="font-serif font-medium text-xl">{translations.no_match_title[lang]}</h3>
           <p className="text-xs font-serif text-stone-500 mt-2 max-w-sm mx-auto leading-relaxed">
-            Please adjust your layout index filter, clear your active query buffer, or review our general categories index above.
+            {translations.no_match_desc[lang]}
           </p>
         </div>
       )}
@@ -269,9 +269,9 @@ export default function ToolGrid({ darkMode, onSelectTool, adsterraLink, adsterr
             <Icons.ShieldAlert className="w-4 h-4" />
           </div>
           <div>
-            <h4 className="font-serif font-medium text-base">Absolute Secure Offline Buffer</h4>
+            <h4 className="font-serif font-medium text-base">{translations.trust_title[lang]}</h4>
             <p className={`text-xs font-serif mt-1 ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
-              Virtual files run directly inside local tab memory blocks. Network telemetry is disabled.
+              {translations.trust_desc[lang]}
             </p>
           </div>
         </div>
@@ -283,7 +283,7 @@ export default function ToolGrid({ darkMode, onSelectTool, adsterraLink, adsterr
               : 'border-[#d8d4ca] hover:border-stone-800 text-stone-800'
           }`}
         >
-          Begin Merge PDF
+          {translations.trust_btn[lang]}
         </button>
       </div>
 

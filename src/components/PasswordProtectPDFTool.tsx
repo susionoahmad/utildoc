@@ -7,6 +7,7 @@ import {
 import { DocumentFile } from '../types';
 import { EditorialProgressBar } from './EditorialProgressBar';
 import { SaaSDB } from '../lib/saasDb';
+import { Language, translations, toolTranslations } from '../lib/translations';
 
 function uint8ToBase64(arr: Uint8Array): string {
   let binary = '';
@@ -46,9 +47,11 @@ function findBytePattern(array: Uint8Array, pattern: Uint8Array): number {
 interface PasswordProtectPDFToolProps {
   darkMode: boolean;
   setView: (view: string) => void;
+  lang?: Language;
 }
 
-export default function PasswordProtectPDFTool({ darkMode, setView }: PasswordProtectPDFToolProps) {
+export default function PasswordProtectPDFTool({ darkMode, setView, lang }: PasswordProtectPDFToolProps) {
+  const activeLang = lang || 'id';
   const [file, setFile] = useState<DocumentFile | null>(null);
   const [rawFileBytes, setRawFileBytes] = useState<Uint8Array | null>(null);
   const [extractedEnvelopeBytes, setExtractedEnvelopeBytes] = useState<Uint8Array | null>(null);
@@ -775,13 +778,13 @@ export default function PasswordProtectPDFTool({ darkMode, setView }: PasswordPr
             }`}
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Return to Editorial Press</span>
+            <span>{translations.nav_back[activeLang]}</span>
           </button>
           <h2 className={`text-3xl font-serif font-medium tracking-tight ${darkMode ? 'text-white' : 'text-stone-900'}`}>
-            Password Protect & Decrypt <span className="italic font-normal">PDF</span>
+            {activeLang === 'en' ? 'Password Protect & Decrypt' : 'Kunci Password & Dekripsi'} <span className="italic font-normal">PDF</span>
           </h2>
           <p className={`text-[11px] font-mono uppercase tracking-wider mt-1.5 ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
-            Military-Grade Local Cryptography (AES-GCM-256)
+            {activeLang === 'en' ? 'Military-Grade Local Cryptography (AES-GCM-256)' : 'Kriptografi Lokal Kelas Militer (AES-GCM-256)'}
           </p>
         </div>
         
@@ -791,7 +794,7 @@ export default function PasswordProtectPDFTool({ darkMode, setView }: PasswordPr
             onClick={loadSampleFile}
             className={`px-4 py-2 border text-[10px] uppercase font-bold tracking-widest transition-all ${outlineBtnClass}`}
           >
-            Load Confidential Sample
+            {activeLang === 'en' ? 'Load Confidential Sample' : 'Muat Sampel Dokumen Rahasia'}
           </button>
         )}
       </div>

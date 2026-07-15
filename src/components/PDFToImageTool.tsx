@@ -9,6 +9,7 @@ import { DocumentFile } from '../types';
 import { MOCK_FILES } from '../data';
 import { EditorialProgressBar } from './EditorialProgressBar';
 import { SaaSDB } from '../lib/saasDb';
+import { Language, translations, toolTranslations } from '../lib/translations';
 
 interface PDFPageImage {
   pageNumber: number;
@@ -113,9 +114,11 @@ async function generateSamplePdfBytes(name: string, pageCount: number): Promise<
 interface PDFToImageToolProps {
   darkMode: boolean;
   setView: (view: string) => void;
+  lang?: Language;
 }
 
-export default function PDFToImageTool({ darkMode, setView }: PDFToImageToolProps) {
+export default function PDFToImageTool({ darkMode, setView, lang }: PDFToImageToolProps) {
+  const activeLang = lang || 'id';
   const [file, setFile] = useState<DocumentFile | null>(null);
   const [format, setFormat] = useState<'png' | 'jpeg'>('png');
   const [quality, setQuality] = useState<'standard' | 'high' | 'ultra'>('high');
@@ -373,12 +376,12 @@ export default function PDFToImageTool({ darkMode, setView }: PDFToImageToolProp
           <h1 className={`text-4xl font-serif font-medium tracking-tight italic ${
             darkMode ? 'text-stone-100' : 'text-stone-950'
           }`}>
-            PDF to Image
+            {toolTranslations['pdf-to-image']?.name[activeLang] || 'PDF to Image'}
           </h1>
           <p className={`text-xs font-serif leading-relaxed mt-2 max-w-xl ${
             darkMode ? 'text-stone-400' : 'text-stone-600'
           }`}>
-            Rasterize documents client-side into clean, individual high-fidelity image formats. Fully customizable scale factor layouts.
+            {toolTranslations['pdf-to-image']?.description[activeLang] || 'Rasterize documents client-side into clean, individual high-fidelity image formats. Fully customizable scale factor layouts.'}
           </p>
         </div>
         
@@ -390,7 +393,7 @@ export default function PDFToImageTool({ darkMode, setView }: PDFToImageToolProp
               : 'border-stone-200 text-stone-600 hover:bg-stone-50 hover:text-stone-900'
           }`}
         >
-          Catalog
+          {activeLang === 'en' ? 'Catalog' : 'Katalog'}
         </button>
       </div>
 

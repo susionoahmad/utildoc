@@ -8,6 +8,7 @@ import { PDFDocument } from 'pdf-lib';
 import { DocumentFile } from '../types';
 import { EditorialProgressBar } from './EditorialProgressBar';
 import { SaaSDB } from '../lib/saasDb';
+import { Language, translations, toolTranslations } from '../lib/translations';
 
 interface ImageItem {
   id: string;
@@ -23,9 +24,11 @@ interface ImageItem {
 interface ImageToPDFToolProps {
   darkMode: boolean;
   setView: (view: string) => void;
+  lang?: Language;
 }
 
-export default function ImageToPDFTool({ darkMode, setView }: ImageToPDFToolProps) {
+export default function ImageToPDFTool({ darkMode, setView, lang }: ImageToPDFToolProps) {
+  const activeLang = lang || 'id';
   const [images, setImages] = useState<ImageItem[]>([]);
   const [pageSize, setPageSize] = useState<'a4' | 'letter' | 'original'>('a4');
   const [orientation, setOrientation] = useState<'portrait' | 'landscape' | 'auto'>('auto');
@@ -348,12 +351,12 @@ export default function ImageToPDFTool({ darkMode, setView }: ImageToPDFToolProp
           <h1 className={`text-4xl font-serif font-medium tracking-tight italic ${
             darkMode ? 'text-stone-100' : 'text-stone-950'
           }`}>
-            Image to PDF
+            {toolTranslations['image-to-pdf']?.name[activeLang] || 'Image to PDF'}
           </h1>
           <p className={`text-xs font-serif leading-relaxed mt-2 max-w-xl ${
             darkMode ? 'text-stone-400' : 'text-stone-600'
           }`}>
-            Compile JPG, PNG, or WebP graphics into a highly standardized, single professional PDF publication.
+            {toolTranslations['image-to-pdf']?.description[activeLang] || 'Compile JPG, PNG, or WebP graphics into a highly standardized, single professional PDF publication.'}
           </p>
         </div>
         
@@ -365,7 +368,7 @@ export default function ImageToPDFTool({ darkMode, setView }: ImageToPDFToolProp
               : 'border-stone-200 text-stone-600 hover:bg-stone-50 hover:text-stone-900'
           }`}
         >
-          Catalog
+          {activeLang === 'en' ? 'Catalog' : 'Katalog'}
         </button>
       </div>
 

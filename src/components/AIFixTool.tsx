@@ -7,10 +7,12 @@ import {
 import { PDFDocument } from 'pdf-lib';
 import { DocumentFile } from '../types';
 import { EditorialProgressBar } from './EditorialProgressBar';
+import { Language, translations } from '../lib/translations';
 
 interface AIFixToolProps {
   darkMode: boolean;
   setView: (view: string) => void;
+  lang?: Language;
 }
 
 const PRESETS = [
@@ -40,7 +42,8 @@ const PRESETS = [
   }
 ];
 
-export default function AIFixTool({ darkMode, setView }: AIFixToolProps) {
+export default function AIFixTool({ darkMode, setView, lang }: AIFixToolProps) {
+  const activeLang = lang || 'id';
   // Input Selection
   const [inputMode, setInputMode] = useState<'text' | 'file'>('text');
   const [inputText, setInputText] = useState('');
@@ -301,14 +304,16 @@ export default function AIFixTool({ darkMode, setView }: AIFixToolProps) {
           darkMode ? 'text-stone-400 hover:text-white' : 'text-stone-500 hover:text-stone-900'
         }`}
       >
-        ← Back to All Utilities
+        {translations.nav_back[activeLang]}
       </button>
 
       {/* Header */}
       <div className="mb-10 pb-6 border-b border-dashed border-[#e6e2d8] dark:border-[#2a2a29]">
-        <h1 className="text-3xl sm:text-4xl font-serif font-light tracking-tight">AI Document Smart Fix</h1>
+        <h1 className="text-3xl sm:text-4xl font-serif font-light tracking-tight">
+          {toolTranslations['ai-fix']?.name[activeLang] || 'AI Document Smart Fix'}
+        </h1>
         <p className={`text-xs sm:text-sm font-serif mt-2 ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
-          Automatically repair syntax, proofread typos, correct tone layers, or restructure loose scripts using sandboxed local memory buffers and Gemini Intelligence.
+          {toolTranslations['ai-fix']?.description[activeLang] || 'Automatically repair syntax, proofread typos, correct tone layers, or restructure loose scripts using sandboxed local memory buffers and Gemini Intelligence.'}
         </p>
       </div>
 

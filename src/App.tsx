@@ -221,6 +221,7 @@ export default function App() {
                 adsterraLink={adsterraLink}
                 adsterraActive={adsterraActive}
                 isLoggedIn={isLoggedIn}
+                lang={lang}
               />
             )}
             {currentView === 'split-pdf' && (
@@ -230,6 +231,7 @@ export default function App() {
                 adsterraLink={adsterraLink}
                 adsterraActive={adsterraActive}
                 isLoggedIn={isLoggedIn}
+                lang={lang}
               />
             )}
             {currentView === 'compress-pdf' && (
@@ -239,6 +241,7 @@ export default function App() {
                 adsterraLink={adsterraLink}
                 adsterraActive={adsterraActive}
                 isLoggedIn={isLoggedIn}
+                lang={lang}
               />
             )}
             {currentView === 'view-metadata' && (
@@ -246,6 +249,7 @@ export default function App() {
                 darkMode={darkMode} 
                 setView={setView} 
                 isLoggedIn={isLoggedIn}
+                lang={lang}
               />
             )}
             {currentView === 'rotate-pdf' && (
@@ -253,6 +257,7 @@ export default function App() {
                 darkMode={darkMode} 
                 setView={setView} 
                 isLoggedIn={isLoggedIn}
+                lang={lang}
               />
             )}
             {currentView === 'watermark-pdf' && (
@@ -260,6 +265,7 @@ export default function App() {
                 darkMode={darkMode} 
                 setView={setView} 
                 isLoggedIn={isLoggedIn}
+                lang={lang}
               />
             )}
             {currentView === 'encrypt-pdf' && (
@@ -267,6 +273,7 @@ export default function App() {
                 darkMode={darkMode} 
                 setView={setView} 
                 isLoggedIn={isLoggedIn}
+                lang={lang}
               />
             )}
             {currentView === 'pdf-to-image' && (
@@ -274,6 +281,7 @@ export default function App() {
                 darkMode={darkMode} 
                 setView={setView} 
                 isLoggedIn={isLoggedIn}
+                lang={lang}
               />
             )}
             {currentView === 'image-to-pdf' && (
@@ -281,6 +289,7 @@ export default function App() {
                 darkMode={darkMode} 
                 setView={setView} 
                 isLoggedIn={isLoggedIn}
+                lang={lang}
               />
             )}
             {currentView === 'image-converter' && (
@@ -288,6 +297,7 @@ export default function App() {
                 darkMode={darkMode} 
                 setView={setView} 
                 isLoggedIn={isLoggedIn}
+                lang={lang}
               />
             )}
             {currentView === 'ocr-scan' && (
@@ -295,6 +305,7 @@ export default function App() {
                 darkMode={darkMode} 
                 setView={setView} 
                 isLoggedIn={isLoggedIn}
+                lang={lang}
               />
             )}
             {currentView === 'ai-fix' && (
@@ -302,6 +313,7 @@ export default function App() {
                 darkMode={darkMode} 
                 setView={setView} 
                 isLoggedIn={isLoggedIn}
+                lang={lang}
               />
             )}
             {currentView === 'saas-admin' && (
@@ -386,25 +398,27 @@ export default function App() {
                 </span>
               </div>
               <p className="text-xs font-serif leading-relaxed max-w-sm">
-                A high-performance, browser-local digital printing press. Files are processed client-side with absolute security inside your active tab context. No server records, no diagnostic footprints.
+                {translations.footer_desc[lang]}
               </p>
               <div className="flex items-center gap-1.5 text-[9px] font-mono tracking-widest uppercase">
                 <span className="w-1.5 h-1.5 rounded-full bg-stone-400 dark:bg-stone-500"></span>
-                <span>Typesetting Service Online</span>
+                <span>{translations.footer_status[lang]}</span>
               </div>
             </div>
 
             {/* Column 2 Services */}
             <div>
-              <h4 className={`text-xs font-sans font-bold uppercase tracking-widest mb-6 ${darkMode ? 'text-[#bfa15f]' : 'text-[#8c1d1a]'}`}>Core Utilities</h4>
+              <h4 className={`text-xs font-sans font-bold uppercase tracking-widest mb-6 ${darkMode ? 'text-[#bfa15f]' : 'text-[#8c1d1a]'}`}>
+                {lang === 'en' ? 'Core Utilities' : 'Utilitas Utama'}
+              </h4>
               <ul className="space-y-3 text-xs font-serif">
-                <li><button onClick={() => setView('merge-pdf')} className="hover:underline hover:text-stone-900 dark:hover:text-white transition-colors">Merge PDF Documents</button></li>
-                <li><button onClick={() => setView('split-pdf')} className="hover:underline hover:text-stone-900 dark:hover:text-white transition-colors">Split PDF Pages</button></li>
-                <li><button onClick={() => setView('compress-pdf')} className="hover:underline hover:text-stone-900 dark:hover:text-white transition-colors">Compress PDF Stream</button></li>
-                <li><button onClick={() => setView('view-metadata')} className="hover:underline hover:text-stone-900 dark:hover:text-white transition-colors">View PDF Metadata</button></li>
-                <li><button onClick={() => setView('rotate-pdf')} className="hover:underline hover:text-stone-900 dark:hover:text-white transition-colors">Rotate PDF Pages</button></li>
-                <li><button onClick={() => setView('watermark-pdf')} className="hover:underline hover:text-stone-900 dark:hover:text-white transition-colors">PDF Watermark Board</button></li>
-                <li><button onClick={() => setView('encrypt-pdf')} className="hover:underline hover:text-stone-900 dark:hover:text-white transition-colors">Secure / Encrypt PDF</button></li>
+                <li><button onClick={() => setView('merge-pdf')} className="hover:underline hover:text-stone-900 dark:hover:text-white transition-colors">{lang === 'en' ? 'Merge PDF Documents' : 'Gabung Dokumen PDF'}</button></li>
+                <li><button onClick={() => setView('split-pdf')} className="hover:underline hover:text-stone-900 dark:hover:text-white transition-colors">{lang === 'en' ? 'Split PDF Pages' : 'Pisah Halaman PDF'}</button></li>
+                <li><button onClick={() => setView('compress-pdf')} className="hover:underline hover:text-stone-900 dark:hover:text-white transition-colors">{lang === 'en' ? 'Compress PDF Stream' : 'Kompres Stream PDF'}</button></li>
+                <li><button onClick={() => setView('view-metadata')} className="hover:underline hover:text-stone-900 dark:hover:text-white transition-colors">{lang === 'en' ? 'View PDF Metadata' : 'Lihat Metadata PDF'}</button></li>
+                <li><button onClick={() => setView('rotate-pdf')} className="hover:underline hover:text-stone-900 dark:hover:text-white transition-colors">{lang === 'en' ? 'Rotate PDF Pages' : 'Putar Halaman PDF'}</button></li>
+                <li><button onClick={() => setView('watermark-pdf')} className="hover:underline hover:text-stone-900 dark:hover:text-white transition-colors">{lang === 'en' ? 'PDF Watermark Board' : 'Papan Watermark PDF'}</button></li>
+                <li><button onClick={() => setView('encrypt-pdf')} className="hover:underline hover:text-stone-900 dark:hover:text-white transition-colors">{lang === 'en' ? 'Secure / Encrypt PDF' : 'Amankan / Enkripsi PDF'}</button></li>
                 {adsterraActive && (
                   <li>
                     <a 
@@ -413,7 +427,7 @@ export default function App() {
                       rel="noopener noreferrer" 
                       className="hover:underline text-[#bfa15f] dark:text-[#bfa15f] hover:text-[#bfa15f]/80 transition-colors font-sans font-bold flex items-center gap-1"
                     >
-                      <Sparkles className="w-3 h-3 animate-pulse" /> Support Us (Ads)
+                      <Sparkles className="w-3 h-3 animate-pulse" /> {translations.nav_sponsor[lang]}
                     </a>
                   </li>
                 )}
@@ -422,13 +436,15 @@ export default function App() {
 
             {/* Column 3 Privacy */}
             <div className="space-y-4">
-              <h4 className={`text-xs font-sans font-bold uppercase tracking-widest mb-6 ${darkMode ? 'text-[#bfa15f]' : 'text-[#8c1d1a]'}`}>Typeset Security</h4>
+              <h4 className={`text-xs font-sans font-bold uppercase tracking-widest mb-6 ${darkMode ? 'text-[#bfa15f]' : 'text-[#8c1d1a]'}`}>
+                {translations.footer_security_title[lang]}
+              </h4>
               <div className={`p-4 rounded-none border flex items-start gap-3 ${
                 darkMode ? 'bg-[#141413] border-[#2c2c2a]' : 'bg-[#FAF9F5] border-[#eae6db]'
               }`}>
                 <ShieldCheck className={`w-5 h-5 shrink-0 mt-0.5 ${darkMode ? 'text-[#bfa15f]' : 'text-[#8c1d1a]'}`} />
                 <p className="text-[11px] font-serif leading-normal">
-                  Our offline model ensures files remain strictly local. No metadata headers are serialized or transmitted across client buffers.
+                  {translations.footer_security_desc[lang]}
                 </p>
               </div>
             </div>
@@ -437,11 +453,11 @@ export default function App() {
 
           {/* Bottom Copyright line */}
           <div className="mt-8 pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-serif text-stone-500">
-            <p>© {new Date().getFullYear()} UtilDoc Studio. All documents processed on local paper.</p>
+            <p>© {new Date().getFullYear()} UtilDoc Studio. {translations.footer_copyright[lang]}</p>
             <div className="flex items-center gap-4 font-sans text-[10px] tracking-wider uppercase">
-              <a href="#" className="hover:underline">Security Protocol</a>
+              <a href="#" className="hover:underline">{translations.footer_protocol[lang]}</a>
               <span>•</span>
-              <a href="#" className="hover:underline">Security Charter</a>
+              <a href="#" className="hover:underline">{translations.footer_charter[lang]}</a>
               <span>•</span>
               <a href="#" className="hover:underline flex items-center gap-1">
                 <GitBranch className="w-3 h-3" /> v4.2-Editorial
@@ -457,7 +473,7 @@ export default function App() {
         <div 
           onClick={() => setShowShortcutsLegend(true)}
           className="fixed bottom-6 right-6 z-40 hidden md:block cursor-pointer group"
-          title="Click to view all keyboard shortcuts"
+          title={translations.kb_badge_title[lang]}
         >
           <div className={`px-3 py-1.5 text-[10px] font-sans font-bold tracking-wider uppercase border flex items-center gap-3 shadow-xl select-none transition-all duration-200 group-hover:scale-105 ${
             darkMode 
@@ -465,14 +481,14 @@ export default function App() {
               : 'bg-[#FAF9F5] border-[#e6e2d8] text-[#8c1d1a]/90 group-hover:border-[#8c1d1a]/40 group-hover:text-[#8c1d1a]'
           }`}>
             <span className="flex items-center gap-1">
-              <kbd className={`px-1 py-0.5 border text-[8px] font-mono leading-none rounded-sm ${darkMode ? 'bg-stone-900 border-stone-800 text-stone-300' : 'bg-stone-100 border-stone-300 text-stone-600'}`}>Ctrl+S</kbd> Save / Compile
+              <kbd className={`px-1 py-0.5 border text-[8px] font-mono leading-none rounded-sm ${darkMode ? 'bg-stone-900 border-stone-800 text-stone-300' : 'bg-stone-100 border-stone-300 text-stone-600'}`}>Ctrl+S</kbd> {translations.kb_save[lang]}
             </span>
             <span className={`w-1 h-1 rounded-full ${darkMode ? 'bg-stone-800' : 'bg-stone-300'}`} />
             <span className="flex items-center gap-1">
-              <kbd className={`px-1 py-0.5 border text-[8px] font-mono leading-none rounded-sm ${darkMode ? 'bg-stone-900 border-stone-800 text-stone-300' : 'bg-stone-100 border-stone-300 text-stone-600'}`}>Esc</kbd> Close Utility
+              <kbd className={`px-1 py-0.5 border text-[8px] font-mono leading-none rounded-sm ${darkMode ? 'bg-stone-900 border-stone-800 text-stone-300' : 'bg-stone-100 border-stone-300 text-stone-600'}`}>Esc</kbd> {translations.kb_close[lang]}
             </span>
             <span className={`w-1 h-1 rounded-full ${darkMode ? 'bg-stone-800' : 'bg-stone-300'}`} />
-            <span className={`font-mono text-[9px] ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>[?] Keys</span>
+            <span className={`font-mono text-[9px] ${darkMode ? 'text-stone-500' : 'text-stone-400'}`}>[?] {translations.kb_keys[lang]}</span>
           </div>
         </div>
       )}
@@ -492,56 +508,56 @@ export default function App() {
             <div className="flex items-center justify-between border-b border-dashed pb-4 border-[#e6e2d8] dark:border-[#2a2a29]">
               <div className="flex items-center gap-2">
                 <Terminal className={`w-4 h-4 ${darkMode ? 'text-[#bfa15f]' : 'text-[#8c1d1a]'}`} />
-                <h3 className="text-sm font-sans font-bold uppercase tracking-wider">UtilDoc Keyboard Shortcuts</h3>
+                <h3 className="text-sm font-sans font-bold uppercase tracking-wider">{translations.kb_title[lang]}</h3>
               </div>
               <button 
                 onClick={() => setShowShortcutsLegend(false)}
                 className="text-xs font-mono hover:underline uppercase tracking-wider opacity-60"
               >
-                Close [Esc]
+                {translations.kb_close_panel[lang]}
               </button>
             </div>
 
             <div className="space-y-5 text-xs font-serif">
               <div className="space-y-3">
-                <h4 className="text-[10px] font-sans font-bold uppercase tracking-widest text-stone-400">Global Actions</h4>
+                <h4 className="text-[10px] font-sans font-bold uppercase tracking-widest text-stone-400">{translations.kb_global[lang]}</h4>
                 <div className="space-y-2">
                   <div className="flex justify-between items-center">
-                    <span>Close Active Modal or Return to Catalog</span>
+                    <span>{translations.kb_close_desc[lang]}</span>
                     <kbd className={`px-1.5 py-0.5 border text-[10px] font-mono rounded ${darkMode ? 'bg-stone-950 border-stone-800 text-stone-300' : 'bg-stone-50 border-stone-300 text-stone-600'}`}>Esc</kbd>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span>Toggle Shortcut Legend Overlay</span>
+                    <span>{translations.kb_toggle_desc[lang]}</span>
                     <kbd className={`px-1.5 py-0.5 border text-[10px] font-mono rounded ${darkMode ? 'bg-stone-950 border-stone-800 text-stone-300' : 'bg-stone-50 border-stone-300 text-stone-600'}`}>?</kbd>
                   </div>
                 </div>
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-[10px] font-sans font-bold uppercase tracking-widest text-stone-400">Contextual Actions (<kbd className="font-mono">Ctrl+S</kbd> / <kbd className="font-mono">Cmd+S</kbd>)</h4>
+                <h4 className="text-[10px] font-sans font-bold uppercase tracking-widest text-stone-400">{translations.kb_contextual[lang]} (<kbd className="font-mono">Ctrl+S</kbd> / <kbd className="font-mono">Cmd+S</kbd>)</h4>
                 <div className="space-y-2.5 max-h-[220px] overflow-y-auto pr-2">
                   <div className="flex justify-between items-start gap-4">
-                    <span className="text-[11px] leading-relaxed"><strong className="font-sans font-bold tracking-tight uppercase text-[9px] block text-stone-400">Merge, Split, Compress PDF</strong>Run compilation or download finalized PDF.</span>
+                    <span className="text-[11px] leading-relaxed"><strong className="font-sans font-bold tracking-tight uppercase text-[9px] block text-stone-400">Merge, Split, Compress PDF</strong>{translations.kb_merge_split_desc[lang]}</span>
                     <kbd className={`shrink-0 px-1.5 py-0.5 border text-[10px] font-mono rounded ${darkMode ? 'bg-stone-950 border-stone-800' : 'bg-stone-50 border-stone-300'}`}>Ctrl+S</kbd>
                   </div>
                   <div className="flex justify-between items-start gap-4">
-                    <span className="text-[11px] leading-relaxed"><strong className="font-sans font-bold tracking-tight uppercase text-[9px] block text-stone-400">Rotate or Watermark PDF</strong>Apply page orientation / overlays, or download output file.</span>
+                    <span className="text-[11px] leading-relaxed"><strong className="font-sans font-bold tracking-tight uppercase text-[9px] block text-stone-400">Rotate or Watermark PDF</strong>{translations.kb_rotate_watermark_desc[lang]}</span>
                     <kbd className={`shrink-0 px-1.5 py-0.5 border text-[10px] font-mono rounded ${darkMode ? 'bg-stone-950 border-stone-800' : 'bg-stone-50 border-stone-300'}`}>Ctrl+S</kbd>
                   </div>
                   <div className="flex justify-between items-start gap-4">
-                    <span className="text-[11px] leading-relaxed"><strong className="font-sans font-bold tracking-tight uppercase text-[9px] block text-stone-400">PDF to Image / Image Converter</strong>Rasterize page structures into ZIP collections.</span>
+                    <span className="text-[11px] leading-relaxed"><strong className="font-sans font-bold tracking-tight uppercase text-[9px] block text-stone-400">PDF to Image / Image Converter</strong>{translations.kb_raster_desc[lang]}</span>
                     <kbd className={`shrink-0 px-1.5 py-0.5 border text-[10px] font-mono rounded ${darkMode ? 'bg-stone-950 border-stone-800' : 'bg-stone-50 border-stone-300'}`}>Ctrl+S</kbd>
                   </div>
                   <div className="flex justify-between items-start gap-4">
-                    <span className="text-[11px] leading-relaxed"><strong className="font-sans font-bold tracking-tight uppercase text-[9px] block text-stone-400">Image to PDF Compiler</strong>Assemble image files into single A4 or Letter publication.</span>
+                    <span className="text-[11px] leading-relaxed"><strong className="font-sans font-bold tracking-tight uppercase text-[9px] block text-stone-400">Image to PDF Compiler</strong>{translations.kb_image_to_pdf_desc[lang]}</span>
                     <kbd className={`shrink-0 px-1.5 py-0.5 border text-[10px] font-mono rounded ${darkMode ? 'bg-stone-950 border-stone-800' : 'bg-stone-50 border-stone-300'}`}>Ctrl+S</kbd>
                   </div>
                   <div className="flex justify-between items-start gap-4">
-                    <span className="text-[11px] leading-relaxed"><strong className="font-sans font-bold tracking-tight uppercase text-[9px] block text-stone-400">AI OCR Scan & Text Fix</strong>Compile AI scan / correction rules, or download text file.</span>
+                    <span className="text-[11px] leading-relaxed"><strong className="font-sans font-bold tracking-tight uppercase text-[9px] block text-stone-400">AI OCR Scan & Text Fix</strong>{translations.kb_ai_desc[lang]}</span>
                     <kbd className={`shrink-0 px-1.5 py-0.5 border text-[10px] font-mono rounded ${darkMode ? 'bg-stone-950 border-stone-800' : 'bg-stone-50 border-stone-300'}`}>Ctrl+S</kbd>
                   </div>
                   <div className="flex justify-between items-start gap-4">
-                    <span className="text-[11px] leading-relaxed"><strong className="font-sans font-bold tracking-tight uppercase text-[9px] block text-stone-400">PDF Metadata Dictionary</strong>Hydrate Tax Review sample, or export report schema as JSON.</span>
+                    <span className="text-[11px] leading-relaxed"><strong className="font-sans font-bold tracking-tight uppercase text-[9px] block text-stone-400">PDF Metadata Dictionary</strong>{translations.kb_metadata_desc[lang]}</span>
                     <kbd className={`shrink-0 px-1.5 py-0.5 border text-[10px] font-mono rounded ${darkMode ? 'bg-stone-950 border-stone-800' : 'bg-stone-50 border-stone-300'}`}>Ctrl+S</kbd>
                   </div>
                 </div>
@@ -549,8 +565,8 @@ export default function App() {
             </div>
 
             <div className={`pt-4 border-t border-dashed text-[10px] font-mono text-center flex items-center justify-center gap-1.5 ${darkMode ? 'border-stone-800 text-stone-500' : 'border-[#e6e2d8] text-stone-400'}`}>
-              <Sparkles className="w-3.5 h-3.5" />
-              <span>UtilDoc Studio • Interactive Typography Core</span>
+              <Terminal className="w-3.5 h-3.5" />
+              <span>{translations.kb_studio_footer[lang]}</span>
             </div>
           </div>
         </div>

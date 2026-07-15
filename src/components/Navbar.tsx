@@ -210,7 +210,7 @@ export default function Navbar({
                     : darkMode ? 'text-stone-400 hover:text-stone-100' : 'text-stone-600 hover:text-stone-900'
                 }`}
               >
-                All Tools
+                {translations.nav_all[lang]}
               </button>
               <button
                 id="nav-btn-merge"
@@ -221,7 +221,7 @@ export default function Navbar({
                     : darkMode ? 'text-stone-400 hover:text-stone-100' : 'text-stone-600 hover:text-stone-900'
                 }`}
               >
-                Merge PDF
+                {translations.nav_merge[lang]}
               </button>
               <button
                 id="nav-btn-secure"
@@ -232,7 +232,7 @@ export default function Navbar({
                     : darkMode ? 'text-stone-400 hover:text-stone-100' : 'text-stone-600 hover:text-stone-900'
                 }`}
               >
-                Secure PDF
+                {translations.nav_secure[lang]}
               </button>
               {adsterraActive && (
                 <a
@@ -243,7 +243,7 @@ export default function Navbar({
                   className="px-3 py-1 font-sans font-bold uppercase tracking-wider text-[11px] text-[#bfa15f] hover:text-[#bfa15f]/80 dark:text-[#bfa15f] dark:hover:text-[#bfa15f]/80 transition-all duration-150 flex items-center gap-1"
                 >
                   <Sparkles className="w-3.5 h-3.5 text-[#bfa15f] dark:text-[#bfa15f] animate-pulse" />
-                  Support Us (Ads)
+                  {translations.nav_sponsor[lang]}
                 </a>
               )}
               

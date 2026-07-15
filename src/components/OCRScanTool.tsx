@@ -7,10 +7,12 @@ import {
 import { PDFDocument } from 'pdf-lib';
 import { DocumentFile } from '../types';
 import { EditorialProgressBar } from './EditorialProgressBar';
+import { Language, translations } from '../lib/translations';
 
 interface OCRScanToolProps {
   darkMode: boolean;
   setView: (view: string) => void;
+  lang?: Language;
 }
 
 const PRESETS = [
@@ -40,7 +42,8 @@ const PRESETS = [
   }
 ];
 
-export default function OCRScanTool({ darkMode, setView }: OCRScanToolProps) {
+export default function OCRScanTool({ darkMode, setView, lang }: OCRScanToolProps) {
+  const activeLang = lang || 'id';
   const [file, setFile] = useState<DocumentFile | null>(null);
   const [fileData, setFileData] = useState<string | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -272,14 +275,16 @@ export default function OCRScanTool({ darkMode, setView }: OCRScanToolProps) {
           darkMode ? 'text-stone-400 hover:text-white' : 'text-stone-500 hover:text-stone-900'
         }`}
       >
-        ← Back to All Utilities
+        {translations.nav_back[activeLang]}
       </button>
 
       {/* Header */}
       <div className="mb-10 pb-6 border-b border-dashed border-[#e6e2d8] dark:border-[#2a2a29]">
-        <h1 className="text-3xl sm:text-4xl font-serif font-light tracking-tight">AI OCR Document Scan</h1>
+        <h1 className="text-3xl sm:text-4xl font-serif font-light tracking-tight">
+          {toolTranslations['ocr-scan']?.name[activeLang] || 'AI OCR Document Scan'}
+        </h1>
         <p className={`text-xs sm:text-sm font-serif mt-2 ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
-          Extract copyable text and structures from scanned PDF packages, receipts, blueprints, or screenshot layers using secure, in-memory sandboxed AI processing.
+          {toolTranslations['ocr-scan']?.description[activeLang] || 'Extract copyable text and structures from scanned PDF packages, receipts, blueprints, or screenshot layers using secure, in-memory sandboxed AI processing.'}
         </p>
       </div>
 

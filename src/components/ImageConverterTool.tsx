@@ -8,6 +8,7 @@ import JSZip from 'jszip';
 import { DocumentFile } from '../types';
 import { EditorialProgressBar } from './EditorialProgressBar';
 import { SaaSDB } from '../lib/saasDb';
+import { Language, translations, toolTranslations } from '../lib/translations';
 
 interface ImageFileItem {
   id: string;
@@ -31,9 +32,11 @@ interface ConvertedImageItem extends ImageFileItem {
 interface ImageConverterToolProps {
   darkMode: boolean;
   setView: (view: string) => void;
+  lang?: Language;
 }
 
-export default function ImageConverterTool({ darkMode, setView }: ImageConverterToolProps) {
+export default function ImageConverterTool({ darkMode, setView, lang }: ImageConverterToolProps) {
+  const activeLang = lang || 'id';
   const [images, setImages] = useState<ImageFileItem[]>([]);
   const [targetFormat, setTargetFormat] = useState<'png' | 'jpeg' | 'webp'>('png');
   const [quality, setQuality] = useState<number>(0.90); // Quality multiplier for JPEG/WebP
@@ -381,12 +384,12 @@ export default function ImageConverterTool({ darkMode, setView }: ImageConverter
           <h1 className={`text-4xl font-serif font-medium tracking-tight italic ${
             darkMode ? 'text-stone-100' : 'text-stone-950'
           }`}>
-            Image Converter
+            {toolTranslations['image-converter']?.name[activeLang] || 'Image Converter'}
           </h1>
           <p className={`text-xs font-serif leading-relaxed mt-2 max-w-xl ${
             darkMode ? 'text-stone-400' : 'text-stone-600'
           }`}>
-            Instantly convert graphics between PNG, JPEG, and WebP. Adjust quality thresholds, downscale viewport dimensions offline securely.
+            {toolTranslations['image-converter']?.description[activeLang] || 'Instantly convert graphics between PNG, JPEG, and WebP. Adjust quality thresholds, downscale viewport dimensions offline securely.'}
           </p>
         </div>
         
@@ -398,7 +401,7 @@ export default function ImageConverterTool({ darkMode, setView }: ImageConverter
               : 'border-stone-200 text-stone-600 hover:bg-stone-50 hover:text-stone-900'
           }`}
         >
-          Catalog
+          {activeLang === 'en' ? 'Catalog' : 'Katalog'}
         </button>
       </div>
 

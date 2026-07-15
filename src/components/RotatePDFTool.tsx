@@ -7,13 +7,16 @@ import {
 import { DocumentFile } from '../types';
 import { EditorialProgressBar } from './EditorialProgressBar';
 import { SaaSDB } from '../lib/saasDb';
+import { Language, translations, toolTranslations } from '../lib/translations';
 
 interface RotatePDFToolProps {
   darkMode: boolean;
   setView: (view: string) => void;
+  lang?: Language;
 }
 
-export default function RotatePDFTool({ darkMode, setView }: RotatePDFToolProps) {
+export default function RotatePDFTool({ darkMode, setView, lang }: RotatePDFToolProps) {
+  const activeLang = lang || 'id';
   const [file, setFile] = useState<DocumentFile | null>(null);
   const [pageRotations, setPageRotations] = useState<Record<number, number>>({}); // page index (0-based) -> rotation (0, 90, 180, 270)
   const [rawFileBytes, setRawFileBytes] = useState<Uint8Array | null>(null);
@@ -352,14 +355,16 @@ export default function RotatePDFTool({ darkMode, setView }: RotatePDFToolProps)
           darkMode ? 'text-stone-400 hover:text-white' : 'text-stone-500 hover:text-stone-900'
         }`}
       >
-        ← Back to All Utilities
+        {translations.nav_back[activeLang]}
       </button>
 
       {/* Header */}
       <div className="mb-10 pb-6 border-b border-dashed border-[#e6e2d8] dark:border-[#2a2a29]">
-        <h1 className="text-3xl sm:text-4xl font-serif font-light tracking-tight">Rotate PDF Pages</h1>
+        <h1 className="text-3xl sm:text-4xl font-serif font-light tracking-tight">
+          {toolTranslations['rotate-pdf']?.name[activeLang] || 'Rotate PDF Pages'}
+        </h1>
         <p className={`text-xs sm:text-sm font-serif mt-2 ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
-          Rotate specific PDF pages individually or in batches by 90, 180, or 270 degrees with direct local buffer output.
+          {toolTranslations['rotate-pdf']?.description[activeLang] || 'Rotate specific PDF pages individually or in batches by 90, 180, or 270 degrees with direct local buffer output.'}
         </p>
       </div>
 

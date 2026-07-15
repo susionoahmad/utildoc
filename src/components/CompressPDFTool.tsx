@@ -8,6 +8,7 @@ import { DocumentFile } from '../types';
 import { MOCK_FILES } from '../data';
 import { EditorialProgressBar } from './EditorialProgressBar';
 import { SaaSDB } from '../lib/saasDb';
+import { Language, translations, toolTranslations } from '../lib/translations';
 
 interface CompressedImageResult {
   bytes: Uint8Array;
@@ -154,9 +155,11 @@ interface CompressPDFToolProps {
   setView: (view: string) => void;
   adsterraLink: string;
   adsterraActive: boolean;
+  lang?: Language;
 }
 
-export default function CompressPDFTool({ darkMode, setView, adsterraLink, adsterraActive }: CompressPDFToolProps) {
+export default function CompressPDFTool({ darkMode, setView, adsterraLink, adsterraActive, lang }: CompressPDFToolProps) {
+  const activeLang = lang || 'id';
   const [file, setFile] = useState<DocumentFile | null>(null);
   const [level, setLevel] = useState<'extreme' | 'recommended' | 'low'>('recommended');
   const [isProcessing, setIsProcessing] = useState(false);
@@ -377,14 +380,16 @@ export default function CompressPDFTool({ darkMode, setView, adsterraLink, adste
           darkMode ? 'text-stone-400 hover:text-white' : 'text-stone-500 hover:text-stone-900'
         }`}
       >
-        ← Back to All Utilities
+        {translations.nav_back[activeLang]}
       </button>
 
       {/* Header */}
       <div className="mb-10 pb-6 border-b border-dashed border-[#e6e2d8] dark:border-[#2a2a29]">
-        <h1 className="text-3xl sm:text-4xl font-serif font-light tracking-tight">Compress PDF Stream</h1>
+        <h1 className="text-3xl sm:text-4xl font-serif font-light tracking-tight">
+          {toolTranslations['compress-pdf']?.name[activeLang] || 'Compress PDF Stream'}
+        </h1>
         <p className={`text-xs sm:text-sm font-serif mt-2 ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
-          Subsample embedded image binaries and compile document maps to save storage for email attachments.
+          {toolTranslations['compress-pdf']?.description[activeLang] || 'Subsample embedded image binaries and compile document maps to save storage for email attachments.'}
         </p>
       </div>
 

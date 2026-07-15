@@ -8,6 +8,7 @@ import { DocumentFile } from '../types';
 import { MOCK_FILES } from '../data';
 import { EditorialProgressBar } from './EditorialProgressBar';
 import { SaaSDB } from '../lib/saasDb';
+import { Language, translations, toolTranslations } from '../lib/translations';
 
 async function generateSamplePdfBytes(name: string, pageCount: number): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.create();
@@ -227,9 +228,11 @@ interface SplitPDFToolProps {
   setView: (view: string) => void;
   adsterraLink: string;
   adsterraActive: boolean;
+  lang?: Language;
 }
 
-export default function SplitPDFTool({ darkMode, setView, adsterraLink, adsterraActive }: SplitPDFToolProps) {
+export default function SplitPDFTool({ darkMode, setView, adsterraLink, adsterraActive, lang }: SplitPDFToolProps) {
+  const activeLang = lang || 'id';
   const [file, setFile] = useState<DocumentFile | null>(null);
   const [splitMode, setSplitMode] = useState<'ranges' | 'all'>('ranges');
   const [ranges, setRanges] = useState('1-3, 4-6');
@@ -476,14 +479,16 @@ export default function SplitPDFTool({ darkMode, setView, adsterraLink, adsterra
           darkMode ? 'text-stone-400 hover:text-white' : 'text-stone-500 hover:text-stone-900'
         }`}
       >
-        ← Back to All Utilities
+        {translations.nav_back[activeLang]}
       </button>
 
       {/* Header */}
       <div className="mb-10 pb-6 border-b border-dashed border-[#e6e2d8] dark:border-[#2a2a29]">
-        <h1 className="text-3xl sm:text-4xl font-serif font-light tracking-tight">Split PDF Pages</h1>
+        <h1 className="text-3xl sm:text-4xl font-serif font-light tracking-tight">
+          {toolTranslations['split-pdf']?.name[activeLang] || 'Split PDF Pages'}
+        </h1>
         <p className={`text-xs sm:text-sm font-serif mt-2 ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
-          Deconstruct documents into separate target files or extract custom intervals in real-time.
+          {toolTranslations['split-pdf']?.description[activeLang] || 'Deconstruct documents into separate target files or extract custom intervals in real-time.'}
         </p>
       </div>
 

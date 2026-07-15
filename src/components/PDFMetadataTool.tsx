@@ -8,10 +8,12 @@ import { DocumentFile } from '../types';
 import { MOCK_FILES } from '../data';
 import { EditorialProgressBar } from './EditorialProgressBar';
 import { SaaSDB } from '../lib/saasDb';
+import { Language, translations, toolTranslations } from '../lib/translations';
 
 interface PDFMetadataToolProps {
   darkMode: boolean;
   setView: (view: string) => void;
+  lang?: Language;
 }
 
 interface ParsedMetadata {
@@ -29,7 +31,8 @@ interface ParsedMetadata {
   isEncrypted: boolean;
 }
 
-export default function PDFMetadataTool({ darkMode, setView }: PDFMetadataToolProps) {
+export default function PDFMetadataTool({ darkMode, setView, lang }: PDFMetadataToolProps) {
+  const activeLang = lang || 'id';
   const [file, setFile] = useState<DocumentFile | null>(null);
   const [metadata, setMetadata] = useState<ParsedMetadata | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -250,14 +253,16 @@ export default function PDFMetadataTool({ darkMode, setView }: PDFMetadataToolPr
           darkMode ? 'text-stone-400 hover:text-white' : 'text-stone-500 hover:text-stone-900'
         }`}
       >
-        ← Back to All Utilities
+        {translations.nav_back[activeLang]}
       </button>
 
       {/* Header */}
       <div className={`mb-10 pb-6 border-b border-dashed ${darkMode ? 'border-[#2a2a29]' : 'border-[#e6e2d8]'}`}>
-        <h1 className={`text-3xl sm:text-4xl font-serif font-light tracking-tight ${darkMode ? 'text-stone-100' : 'text-stone-900'}`}>PDF Metadata Inspector</h1>
+        <h1 className={`text-3xl sm:text-4xl font-serif font-light tracking-tight ${darkMode ? 'text-stone-100' : 'text-stone-900'}`}>
+          {toolTranslations['view-metadata']?.name[activeLang] || 'PDF Metadata Inspector'}
+        </h1>
         <p className={`text-xs sm:text-sm font-serif mt-2 ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
-          Decompress document dictionaries to inspect titles, authorship histories, and local compiler properties in real-time.
+          {toolTranslations['view-metadata']?.description[activeLang] || 'Decompress document dictionaries to inspect titles, authorship histories, and local compiler properties in real-time.'}
         </p>
       </div>
 
