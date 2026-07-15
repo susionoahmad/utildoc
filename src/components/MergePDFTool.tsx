@@ -8,6 +8,7 @@ import { PDFDocument, StandardFonts, degrees } from 'pdf-lib';
 import { DocumentFile } from '../types';
 import { MOCK_FILES } from '../data';
 import { EditorialProgressBar } from './EditorialProgressBar';
+import { SaaSDB } from '../lib/saasDb';
 
 async function generateSamplePdfBytes(name: string, pageCount: number): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.create();
@@ -329,6 +330,7 @@ export default function MergePDFTool({ darkMode, setView, adsterraLink, adsterra
         pages: mergedPdf.getPageCount(),
         downloadUrl
       });
+      SaaSDB.logActivity('MERGE_PDF');
       setMergeProgress(100);
       setIsMerging(false);
     } catch (err: any) {

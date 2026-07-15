@@ -17,13 +17,17 @@ import {
   getSettings,
   saveSettings,
   getMetrics,
-  hashPassword
+  hashPassword,
+  addActivityLog,
+  getActivityLogs,
+  incrementGuestCounter,
+  getToolUsageRanking
 } from "./db";
 
 dotenv.config();
 
 // In-memory session store mapping SessionToken -> User Session Info
-const SESSIONS = new Map<string, { id: string; email: string; name: string; plan: string }>();
+const SESSIONS = new Map<string, { id: string; email: string; name: string; plan: string; role: string }>();
 
 // Helper to resolve user from auth headers
 function getSessionUser(req: express.Request) {
@@ -86,15 +90,19 @@ async function startServer() {
         passwordHash,
         name,
         plan: 'starter',
-        status: 'active'
+        status: 'active',
+        role: 'user'
       });
 
       const token = crypto.randomBytes(24).toString("hex");
-      SESSIONS.set(token, { id: user.id, email: user.email, name: user.name, plan: user.plan });
+      SESSIONS.set(token, { id: user.id, email: user.email, name: user.name, plan: user.plan, role: user.role });
+
+      // Log activity
+      await addActivityLog(user.email, "REGISTER", `User registered with name: ${name}`);
 
       res.json({
         token,
-        session: { isLoggedIn: true, email: user.email, plan: user.plan, name: user.name }
+        session: { isLoggedIn: true, email: user.email, plan: user.plan, name: user.name, role: user.role }
       });
     } catch (err: any) {
       res.status(500).json({ error: err.message || "Failed to register user." });
@@ -118,22 +126,30 @@ async function startServer() {
       }
 
       const token = crypto.randomBytes(24).toString("hex");
-      SESSIONS.set(token, { id: user.id, email: user.email, name: user.name, plan: user.plan });
+      SESSIONS.set(token, { id: user.id, email: user.email, name: user.name, plan: user.plan, role: user.role });
+
+      // Log activity
+      await addActivityLog(user.email, "LOGIN", "User logged in successfully");
 
       res.json({
         token,
-        session: { isLoggedIn: true, email: user.email, plan: user.plan, name: user.name }
+        session: { isLoggedIn: true, email: user.email, plan: user.plan, name: user.name, role: user.role }
       });
     } catch (err: any) {
       res.status(500).json({ error: err.message || "Failed to log in." });
     }
   });
 
-  app.post("/api/auth/logout", (req, res) => {
+  app.post("/api/auth/logout", async (req, res) => {
     const authHeader = req.headers.authorization;
     if (authHeader && authHeader.startsWith("Bearer ")) {
       const token = authHeader.split(" ")[1];
-      SESSIONS.delete(token);
+      const session = SESSIONS.get(token);
+      if (session) {
+        // Log activity
+        await addActivityLog(session.email, "LOGOUT", "User logged out");
+        SESSIONS.delete(token);
+      }
     }
     res.json({ success: true });
   });
@@ -165,17 +181,54 @@ async function startServer() {
         id: user.id,
         email: user.email,
         name: user.name,
-        plan: user.plan
+        plan: user.plan,
+        role: user.role
       });
 
       res.json({
         isLoggedIn: true,
         email: user.email,
         plan: user.plan,
-        name: user.name
+        name: user.name,
+        role: user.role
       });
     } catch {
       res.json({ isLoggedIn: false });
+    }
+  });
+
+  app.post("/api/auth/change-password", async (req, res) => {
+    const session = getSessionUser(req);
+    if (!session) {
+      return res.status(401).json({ error: "Unauthorized. Please log in first." });
+    }
+
+    try {
+      const { currentPassword, newPassword } = req.body;
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ error: "Both current password and new password are required." });
+      }
+
+      // Fetch user from DB to verify old password
+      const user = await getUserByEmail(session.email);
+      if (!user) {
+        return res.status(404).json({ error: "User not found." });
+      }
+
+      const hashedCurrent = hashPassword(currentPassword);
+      if (hashedCurrent !== user.passwordHash) {
+        return res.status(400).json({ error: "Password saat ini tidak cocok." });
+      }
+
+      const hashedNew = hashPassword(newPassword);
+      await updateUser(user.id, { passwordHash: hashedNew });
+
+      // Log activity
+      await addActivityLog(user.email, "AUTH_SETTINGS", "User changed their password successfully");
+
+      res.json({ success: true, message: "Password changed successfully." });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message || "Failed to change password." });
     }
   });
 
@@ -220,23 +273,49 @@ async function startServer() {
     }
   });
 
+  // 2.7 Activity logger endpoint
+  app.post("/api/activity/log", async (req, res) => {
+    try {
+      const { toolType } = req.body;
+      if (!toolType) {
+        return res.status(400).json({ error: "toolType is required" });
+      }
+      
+      const session = getSessionUser(req);
+      if (session) {
+        // Logged-in human user: log detail
+        await addActivityLog(session.email, toolType, `Executed ${toolType.replace('_', ' ')} locally`);
+      } else {
+        // Guest user: increment counter only (no db bloat)
+        await incrementGuestCounter(toolType);
+      }
+      res.json({ success: true });
+    } catch (err: any) {
+      res.status(500).json({ error: err.message || "Failed to log activity" });
+    }
+  });
+
   // 3. Admin Dashboard Routes
   app.get("/api/admin/data", async (req, res) => {
     const session = getSessionUser(req);
-    if (!session) {
-      return res.status(401).json({ error: "Unauthorized access to admin data." });
+    if (!session || session.role !== 'admin') {
+      return res.status(403).json({ error: "Unauthorized access to admin data. Admins only." });
     }
     try {
       const usersList = await getUsers();
       const transactionsList = await getTransactions();
       const settingsObj = await getSettings();
       const metricsObj = await getMetrics();
+      const logsList = await getActivityLogs();
+      const rankings = await getToolUsageRanking();
 
       res.json({
         users: usersList,
         transactions: transactionsList,
         settings: settingsObj,
-        metrics: metricsObj
+        metrics: metricsObj,
+        activityLogs: logsList,
+        toolRankings: rankings
       });
     } catch (err: any) {
       res.status(500).json({ error: err.message || "Failed to fetch admin data." });
@@ -245,8 +324,8 @@ async function startServer() {
 
   app.post("/api/admin/users/add", async (req, res) => {
     const session = getSessionUser(req);
-    if (!session) {
-      return res.status(401).json({ error: "Unauthorized." });
+    if (!session || session.role !== 'admin') {
+      return res.status(403).json({ error: "Unauthorized access. Admins only." });
     }
     try {
       const { email, name, plan } = req.body;
@@ -265,8 +344,12 @@ async function startServer() {
         passwordHash,
         name,
         plan: plan || 'starter',
-        status: 'active'
+        status: 'active',
+        role: 'user'
       });
+
+      // Log admin action
+      await addActivityLog(session.email, "ADMIN_ACTION", `Admin created user: ${email}`);
 
       res.json({ success: true, user });
     } catch (err: any) {
@@ -276,8 +359,8 @@ async function startServer() {
 
   app.put("/api/admin/users/:id", async (req, res) => {
     const session = getSessionUser(req);
-    if (!session) {
-      return res.status(401).json({ error: "Unauthorized." });
+    if (!session || session.role !== 'admin') {
+      return res.status(403).json({ error: "Unauthorized access. Admins only." });
     }
     try {
       const { id } = req.params;
@@ -295,9 +378,13 @@ async function startServer() {
         if (sessionData.id === id) {
           if (updates.plan) sessionData.plan = updates.plan;
           if (updates.name) sessionData.name = updates.name;
+          if (updates.role) sessionData.role = updates.role;
           SESSIONS.set(token, sessionData);
         }
       }
+
+      // Log admin action
+      await addActivityLog(session.email, "ADMIN_ACTION", `Admin updated user details for ID: ${id}`);
 
       res.json({ success: true });
     } catch (err: any) {
@@ -307,8 +394,8 @@ async function startServer() {
 
   app.delete("/api/admin/users/:id", async (req, res) => {
     const session = getSessionUser(req);
-    if (!session) {
-      return res.status(401).json({ error: "Unauthorized." });
+    if (!session || session.role !== 'admin') {
+      return res.status(403).json({ error: "Unauthorized access. Admins only." });
     }
     try {
       const { id } = req.params;
@@ -324,6 +411,10 @@ async function startServer() {
       }
 
       await deleteUser(id);
+
+      // Log admin action
+      await addActivityLog(session.email, "ADMIN_ACTION", `Admin permanently deleted user ID: ${id}`);
+
       res.json({ success: true });
     } catch (err: any) {
       res.status(500).json({ error: err.message || "Failed to delete user." });
@@ -332,8 +423,8 @@ async function startServer() {
 
   app.post("/api/admin/transactions/add", async (req, res) => {
     const session = getSessionUser(req);
-    if (!session) {
-      return res.status(401).json({ error: "Unauthorized." });
+    if (!session || session.role !== 'admin') {
+      return res.status(403).json({ error: "Unauthorized access. Admins only." });
     }
     try {
       const txData = req.body;
@@ -349,6 +440,9 @@ async function startServer() {
         status: txData.status
       });
 
+      // Log admin action
+      await addActivityLog(session.email, "ADMIN_ACTION", `Admin logged custom transaction for: ${txData.userEmail}`);
+
       res.json({ success: true, transaction: tx });
     } catch (err: any) {
       res.status(500).json({ error: err.message || "Failed to log transaction." });
@@ -357,12 +451,16 @@ async function startServer() {
 
   app.put("/api/admin/settings", async (req, res) => {
     const session = getSessionUser(req);
-    if (!session) {
-      return res.status(401).json({ error: "Unauthorized." });
+    if (!session || session.role !== 'admin') {
+      return res.status(403).json({ error: "Unauthorized access. Admins only." });
     }
     try {
       const settingsData = req.body;
       await saveSettings(settingsData);
+
+      // Log admin action
+      await addActivityLog(session.email, "ADMIN_ACTION", "Admin updated global system settings");
+
       res.json({ success: true });
     } catch (err: any) {
       res.status(500).json({ error: err.message || "Failed to save settings." });
@@ -424,6 +522,7 @@ async function startServer() {
 
       // Log successful document processing
       await updateUser(user.id, { docsProcessed: user.docsProcessed + 1 });
+      await addActivityLog(user.email, "OCR_SCAN", `OCR text extracted from document (${mimeType})`);
 
       res.json({ text });
 
@@ -513,6 +612,7 @@ async function startServer() {
 
       // Log successful document processing
       await updateUser(user.id, { docsProcessed: user.docsProcessed + 1 });
+      await addActivityLog(user.email, "AI_FIX", `AI fixed text using task: ${task}`);
 
       res.json({ text: processedText });
 

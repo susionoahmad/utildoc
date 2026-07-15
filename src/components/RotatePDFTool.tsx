@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { DocumentFile } from '../types';
 import { EditorialProgressBar } from './EditorialProgressBar';
+import { SaaSDB } from '../lib/saasDb';
 
 interface RotatePDFToolProps {
   darkMode: boolean;
@@ -304,6 +305,7 @@ export default function RotatePDFTool({ darkMode, setView }: RotatePDFToolProps)
       const downloadUrl = URL.createObjectURL(blob);
 
       setTimeout(() => {
+        SaaSDB.logActivity('ROTATE_PDF');
         setResult({
           name: file.name.replace('.pdf', '_rotated.pdf'),
           downloadUrl,

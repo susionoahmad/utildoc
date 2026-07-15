@@ -7,6 +7,7 @@ import {
 import JSZip from 'jszip';
 import { DocumentFile } from '../types';
 import { EditorialProgressBar } from './EditorialProgressBar';
+import { SaaSDB } from '../lib/saasDb';
 
 interface ImageFileItem {
   id: string;
@@ -318,6 +319,7 @@ export default function ImageConverterTool({ darkMode, setView }: ImageConverter
 
       setConvertedImages(results);
       setZipUrl(url);
+      SaaSDB.logActivity('IMAGE_CONVERTER');
       setProgress(100);
       setStep('Graphics conversion finalized successfully.');
     } catch (err: any) {

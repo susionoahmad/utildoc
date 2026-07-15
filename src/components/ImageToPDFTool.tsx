@@ -7,6 +7,7 @@ import {
 import { PDFDocument } from 'pdf-lib';
 import { DocumentFile } from '../types';
 import { EditorialProgressBar } from './EditorialProgressBar';
+import { SaaSDB } from '../lib/saasDb';
 
 interface ImageItem {
   id: string;
@@ -295,6 +296,7 @@ export default function ImageToPDFTool({ darkMode, setView }: ImageToPDFToolProp
       
       setPdfBlobUrl(url);
       setPdfSize(pdfBytes.byteLength);
+      SaaSDB.logActivity('IMAGE_TO_PDF');
       setProgress(100);
       setStep('Success! Images compiled perfectly.');
     } catch (err: any) {

@@ -8,6 +8,7 @@ import JSZip from 'jszip';
 import { DocumentFile } from '../types';
 import { MOCK_FILES } from '../data';
 import { EditorialProgressBar } from './EditorialProgressBar';
+import { SaaSDB } from '../lib/saasDb';
 
 interface PDFPageImage {
   pageNumber: number;
@@ -307,6 +308,7 @@ export default function PDFToImageTool({ darkMode, setView }: PDFToImageToolProp
       
       setPagesImages(renderedImages);
       setZipUrl(url);
+      SaaSDB.logActivity('PDF_TO_IMAGE');
       setProgress(100);
       setStep('Success! Pages converted flawlessly.');
     } catch (err: any) {

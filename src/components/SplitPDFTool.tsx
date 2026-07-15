@@ -7,6 +7,7 @@ import { PDFDocument, StandardFonts } from 'pdf-lib';
 import { DocumentFile } from '../types';
 import { MOCK_FILES } from '../data';
 import { EditorialProgressBar } from './EditorialProgressBar';
+import { SaaSDB } from '../lib/saasDb';
 
 async function generateSamplePdfBytes(name: string, pageCount: number): Promise<Uint8Array> {
   const pdfDoc = await PDFDocument.create();
@@ -385,6 +386,7 @@ export default function SplitPDFTool({ darkMode, setView, adsterraLink, adsterra
             filesCount: 1,
             downloadUrl
           });
+          SaaSDB.logActivity('SPLIT_PDF');
           setProgress(100);
           setIsProcessing(false);
           return;
@@ -434,6 +436,7 @@ export default function SplitPDFTool({ darkMode, setView, adsterraLink, adsterra
         filesCount: filesToZip.length,
         downloadUrl
       });
+      SaaSDB.logActivity('SPLIT_PDF');
       setProgress(100);
       setIsProcessing(false);
     } catch (err: any) {

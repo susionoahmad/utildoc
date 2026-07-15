@@ -17,26 +17,10 @@ export function hashPassword(password: string): string {
 
 // Initial Mock Data
 const DEFAULT_USERS = [
-  { id: 'usr-1', email: 'vance.types@editorial.co', name: 'Vance Typesetting', plan: 'enterprise', status: 'active', joinedDate: '2026-01-15', docsProcessed: 1420, amountPaid: 495.00 },
-  { id: 'usr-2', email: 'helena@swissgrid.design', name: 'Swissgrid Design', plan: 'pro', status: 'active', joinedDate: '2026-02-01', docsProcessed: 310, amountPaid: 76.00 },
-  { id: 'usr-3', email: 'm.keller@bauhaus-archive.de', name: 'Martin Keller', plan: 'starter', status: 'active', joinedDate: '2026-03-10', docsProcessed: 14, amountPaid: 0 },
-  { id: 'usr-4', email: 'dossier_review@taxaudit.intl', name: 'Tax Review Agency', plan: 'enterprise', status: 'active', joinedDate: '2026-03-22', docsProcessed: 2890, amountPaid: 396.00 },
-  { id: 'usr-5', email: 'beatrice@monoforms.xyz', name: 'Beatrice Forms', plan: 'pro', status: 'active', joinedDate: '2026-04-05', docsProcessed: 95, amountPaid: 38.00 },
-  { id: 'usr-6', email: 'curator@metropolitan-press.org', name: 'Metro Press Curator', plan: 'starter', status: 'suspended', joinedDate: '2026-04-18', docsProcessed: 0, amountPaid: 0 },
-  { id: 'usr-7', email: 'production@gallimard-editions.fr', name: 'Gallimard Production', plan: 'enterprise', status: 'active', joinedDate: '2026-05-12', docsProcessed: 820, amountPaid: 198.00 },
-  { id: 'usr-8', email: 'clara.scholz@typografie.at', name: 'Clara Scholz', plan: 'pro', status: 'active', joinedDate: '2026-06-01', docsProcessed: 45, amountPaid: 19.00 }
+  { id: 'usr-admin', email: 'admin@utildoc.com', name: 'Administrator', plan: 'enterprise', status: 'active', role: 'admin', joinedDate: '2026-07-15', docsProcessed: 0, amountPaid: 0.00 }
 ];
 
-const DEFAULT_TRANSACTIONS = [
-  { id: 'tx-8041', userEmail: 'vance.types@editorial.co', plan: 'enterprise', amount: 99.00, gateway: 'Stripe', status: 'completed', date: '2026-06-15 10:24' },
-  { id: 'tx-8040', userEmail: 'clara.scholz@typografie.at', plan: 'pro', amount: 19.00, gateway: 'Midtrans', status: 'completed', date: '2026-06-01 14:15' },
-  { id: 'tx-8039', userEmail: 'production@gallimard-editions.fr', plan: 'enterprise', amount: 99.00, gateway: 'Stripe', status: 'completed', date: '2026-05-12 09:02' },
-  { id: 'tx-8038', userEmail: 'helena@swissgrid.design', plan: 'pro', amount: 19.00, gateway: 'PayPal', status: 'completed', date: '2026-05-01 18:30' },
-  { id: 'tx-8037', userEmail: 'dossier_review@taxaudit.intl', plan: 'enterprise', amount: 99.00, gateway: 'Stripe', status: 'completed', date: '2026-04-22 11:11' },
-  { id: 'tx-8036', userEmail: 'beatrice@monoforms.xyz', plan: 'pro', amount: 19.00, gateway: 'Midtrans', status: 'completed', date: '2026-04-05 16:40' },
-  { id: 'tx-8035', userEmail: 'vance.types@editorial.co', plan: 'enterprise', amount: 99.00, gateway: 'Stripe', status: 'completed', date: '2026-04-15 10:19' },
-  { id: 'tx-8034', userEmail: 'helena@swissgrid.design', plan: 'pro', amount: 19.00, gateway: 'PayPal', status: 'completed', date: '2026-04-01 18:25' }
-];
+const DEFAULT_TRANSACTIONS: any[] = [];
 
 const DEFAULT_SETTINGS = {
   stripeActive: true,
@@ -64,9 +48,34 @@ export async function initDb() {
         name VARCHAR(100) NOT NULL,
         plan VARCHAR(50) DEFAULT 'starter',
         status VARCHAR(50) DEFAULT 'active',
+        role VARCHAR(50) DEFAULT 'user',
         joined_date DATE DEFAULT CURRENT_DATE,
         docs_processed INTEGER DEFAULT 0,
         amount_paid NUMERIC(10, 2) DEFAULT 0.00
+      );
+    `);
+
+    // Ensure role column exists if table already existed
+    await client.query(`
+      ALTER TABLE users ADD COLUMN IF NOT EXISTS role VARCHAR(50) DEFAULT 'user';
+    `);
+
+    // Activity logs table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS activity_logs (
+        id VARCHAR(50) PRIMARY KEY,
+        user_email VARCHAR(255) NOT NULL,
+        activity_type VARCHAR(100) NOT NULL,
+        description TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      );
+    `);
+
+    // Guest activity counters table
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS guest_activity_counters (
+        tool_type VARCHAR(100) PRIMARY KEY,
+        count INTEGER DEFAULT 0
       );
     `);
 
@@ -91,22 +100,29 @@ export async function initDb() {
       );
     `);
 
-    // Check if we need to seed
-    const userCheck = await client.query('SELECT COUNT(*) FROM users');
-    if (parseInt(userCheck.rows[0].count, 10) === 0) {
-      console.log('Seeding initial users...');
-      const defaultPasswordHash = hashPassword('password'); // Default password is 'password'
-      for (const u of DEFAULT_USERS) {
-        await client.query(
-          `INSERT INTO users (id, email, password_hash, name, plan, status, joined_date, docs_processed, amount_paid)
-           VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-          [u.id, u.email, defaultPasswordHash, u.name, u.plan, u.status, u.joinedDate, u.docsProcessed, u.amountPaid]
-        );
-      }
+    // Clean up old dummy users and transactions
+    await client.query(`
+      DELETE FROM users WHERE id IN ('usr-1', 'usr-2', 'usr-3', 'usr-4', 'usr-5', 'usr-6', 'usr-7', 'usr-8');
+    `);
+    await client.query(`
+      DELETE FROM transactions WHERE id IN ('tx-8041', 'tx-8040', 'tx-8039', 'tx-8038', 'tx-8037', 'tx-8036', 'tx-8035', 'tx-8034');
+    `);
+
+    // Check if we need to seed admin user specifically
+    const adminCheck = await client.query('SELECT * FROM users WHERE email = $1', ['admin@utildoc.com']);
+    if (adminCheck.rows.length === 0) {
+      console.log('Seeding admin@utildoc.com user...');
+      const defaultPasswordHash = hashPassword('admin123'); // Default admin password is 'admin123'
+      const u = DEFAULT_USERS[0];
+      await client.query(
+        `INSERT INTO users (id, email, password_hash, name, plan, status, role, docs_processed, amount_paid)
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
+        [u.id, u.email, defaultPasswordHash, u.name, u.plan, u.status, u.role, u.docsProcessed, u.amountPaid]
+      );
     }
 
     const txCheck = await client.query('SELECT COUNT(*) FROM transactions');
-    if (parseInt(txCheck.rows[0].count, 10) === 0) {
+    if (parseInt(txCheck.rows[0].count, 10) === 0 && DEFAULT_TRANSACTIONS.length > 0) {
       console.log('Seeding initial transactions...');
       for (const tx of DEFAULT_TRANSACTIONS) {
         await client.query(
@@ -150,7 +166,7 @@ export async function initDb() {
 
 // User CRUD Helpers
 export async function getUsers() {
-  const res = await pool.query('SELECT id, email, name, plan, status, joined_date as "joinedDate", docs_processed as "docsProcessed", amount_paid as "amountPaid" FROM users ORDER BY joined_date DESC, id DESC');
+  const res = await pool.query('SELECT id, email, name, plan, status, role, joined_date as "joinedDate", docs_processed as "docsProcessed", amount_paid as "amountPaid" FROM users ORDER BY joined_date DESC, id DESC');
   return res.rows.map(r => ({
     ...r,
     joinedDate: r.joinedDate instanceof Date ? r.joinedDate.toISOString().slice(0, 10) : r.joinedDate,
@@ -170,6 +186,7 @@ export async function getUserByEmail(email: string) {
     name: r.name,
     plan: r.plan,
     status: r.status,
+    role: r.role || 'user',
     joinedDate: r.joined_date instanceof Date ? r.joined_date.toISOString().slice(0, 10) : r.joined_date,
     docsProcessed: parseInt(r.docs_processed, 10),
     amountPaid: parseFloat(r.amount_paid)
@@ -187,25 +204,27 @@ export async function getUserById(id: string) {
     name: r.name,
     plan: r.plan,
     status: r.status,
+    role: r.role || 'user',
     joinedDate: r.joined_date instanceof Date ? r.joined_date.toISOString().slice(0, 10) : r.joined_date,
     docsProcessed: parseInt(r.docs_processed, 10),
     amountPaid: parseFloat(r.amount_paid)
   };
 }
 
-export async function addUser(user: { email: string; passwordHash: string; name: string; plan: string; status: string }) {
+export async function addUser(user: { email: string; passwordHash: string; name: string; plan: string; status: string; role?: string }) {
   const id = `usr-${Math.floor(Math.random() * 10000)}`;
   const joinedDate = new Date().toISOString().slice(0, 10);
   const docsProcessed = 0;
-  const amountPaid = user.plan === 'pro' ? 19.00 : user.plan === 'enterprise' ? 99.00 : 0.00;
+  const amountPaid = 0.00;
+  const role = user.role || 'user';
   
   await pool.query(
-    `INSERT INTO users (id, email, password_hash, name, plan, status, joined_date, docs_processed, amount_paid)
-     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-    [id, user.email, user.passwordHash, user.name, user.plan, user.status, joinedDate, docsProcessed, amountPaid]
+    `INSERT INTO users (id, email, password_hash, name, plan, status, role, joined_date, docs_processed, amount_paid)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`,
+    [id, user.email, user.passwordHash, user.name, user.plan, user.status, role, joinedDate, docsProcessed, amountPaid]
   );
   
-  return { id, email: user.email, name: user.name, plan: user.plan, status: user.status, joinedDate, docsProcessed, amountPaid };
+  return { id, email: user.email, name: user.name, plan: user.plan, status: user.status, role, joinedDate, docsProcessed, amountPaid };
 }
 
 export async function updateUser(id: string, updates: any) {
@@ -240,6 +259,10 @@ export async function updateUser(id: string, updates: any) {
   if (updates.passwordHash !== undefined) {
     fields.push(`password_hash = $${index++}`);
     values.push(updates.passwordHash);
+  }
+  if (updates.role !== undefined) {
+    fields.push(`role = $${index++}`);
+    values.push(updates.role);
   }
 
   if (fields.length === 0) return;
@@ -340,8 +363,24 @@ export async function getMetrics() {
     .filter(tx => tx.status === 'completed')
     .reduce((sum, tx) => sum + tx.amount, 0);
 
-  const docsProcessedTotal = users.reduce((sum, u) => sum + u.docsProcessed, 0) + 12050;
-  const apiCallsTotal = docsProcessedTotal * 3 + 8240;
+  // Real document processed calculation:
+  // 1. Registered user actions that are tool activities (i.e. not AUTH_LOGIN, AUTH_REGISTER, AUTH_LOGOUT, etc.)
+  const toolActivitiesRes = await pool.query(`
+    SELECT COUNT(*) FROM activity_logs 
+    WHERE activity_type NOT IN ('AUTH_LOGIN', 'AUTH_REGISTER', 'AUTH_LOGOUT', 'AUTH_SETTINGS', 'AUTH_DELETE_USER')
+  `);
+  const registeredToolCount = parseInt(toolActivitiesRes.rows[0].count, 10);
+
+  // 2. Guest activity counters
+  const guestCountRes = await pool.query('SELECT SUM(count) FROM guest_activity_counters');
+  const guestToolCount = parseInt(guestCountRes.rows[0].sum || '0', 10);
+
+  const docsProcessedTotal = registeredToolCount + guestToolCount;
+
+  // Real api calls count (all activity logs + all guest counters)
+  const totalLogsRes = await pool.query('SELECT COUNT(*) FROM activity_logs');
+  const totalLogsCount = parseInt(totalLogsRes.rows[0].count, 10);
+  const apiCallsTotal = totalLogsCount + guestToolCount;
 
   const paidUsersCount = users.filter(u => u.plan !== 'starter').length;
   const conversionRate = users.length > 0 ? (paidUsersCount / users.length) * 100 : 0;
@@ -352,4 +391,77 @@ export async function getMetrics() {
     apiCallsTotal,
     conversionRate
   };
+}
+
+export async function addActivityLog(userEmail: string, activityType: string, description: string) {
+  const id = `act-${Math.floor(Math.random() * 100000)}`;
+  await pool.query(
+    `INSERT INTO activity_logs (id, user_email, activity_type, description, created_at)
+     VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)`,
+    [id, userEmail, activityType, description]
+  );
+}
+
+export async function getActivityLogs() {
+  const res = await pool.query('SELECT id, user_email as "userEmail", activity_type as "activityType", description, created_at as "date" FROM activity_logs ORDER BY created_at DESC LIMIT 100');
+  return res.rows.map(r => {
+    const d = r.date instanceof Date ? r.date : new Date(r.date);
+    const dateFormatted = `${d.toISOString().slice(0, 10)} ${d.toTimeString().slice(0, 5)}`;
+    return {
+      id: r.id,
+      userEmail: r.userEmail,
+      activityType: r.activityType,
+      description: r.description,
+      date: dateFormatted
+    };
+  });
+}
+
+export async function incrementGuestCounter(toolType: string) {
+  await pool.query(
+    `INSERT INTO guest_activity_counters (tool_type, count)
+     VALUES ($1, 1)
+     ON CONFLICT (tool_type)
+     DO UPDATE SET count = guest_activity_counters.count + 1`,
+    [toolType]
+  );
+}
+
+export async function getToolUsageRanking() {
+  const loggedInRes = await pool.query(`
+    SELECT activity_type as "toolType", COUNT(*) as count 
+    FROM activity_logs 
+    WHERE activity_type IN ('MERGE_PDF', 'SPLIT_PDF', 'COMPRESS_PDF', 'VIEW_METADATA', 'ROTATE_PDF', 'WATERMARK_PDF', 'ENCRYPT_PDF', 'PDF_TO_IMAGE', 'IMAGE_TO_PDF', 'IMAGE_CONVERTER', 'OCR_SCAN', 'AI_FIX')
+    GROUP BY activity_type
+  `);
+  
+  const guestRes = await pool.query(`
+    SELECT tool_type as "toolType", count 
+    FROM guest_activity_counters
+  `);
+  
+  const rankingMap = new Map<string, number>();
+  
+  const ALL_TOOLS = [
+    'MERGE_PDF', 'SPLIT_PDF', 'COMPRESS_PDF', 'VIEW_METADATA',
+    'ROTATE_PDF', 'WATERMARK_PDF', 'ENCRYPT_PDF', 'PDF_TO_IMAGE',
+    'IMAGE_TO_PDF', 'IMAGE_CONVERTER', 'OCR_SCAN', 'AI_FIX'
+  ];
+  for (const t of ALL_TOOLS) {
+    rankingMap.set(t, 0);
+  }
+  
+  for (const row of loggedInRes.rows) {
+    rankingMap.set(row.toolType, (rankingMap.get(row.toolType) || 0) + parseInt(row.count, 10));
+  }
+  for (const row of guestRes.rows) {
+    rankingMap.set(row.toolType, (rankingMap.get(row.toolType) || 0) + parseInt(row.count, 10));
+  }
+  
+  const ranking = Array.from(rankingMap.entries()).map(([toolType, count]) => ({
+    toolType,
+    count
+  })).sort((a, b) => b.count - a.count);
+  
+  return ranking;
 }

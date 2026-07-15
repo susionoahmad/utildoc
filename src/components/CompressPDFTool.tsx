@@ -7,6 +7,7 @@ import { PDFDocument, StandardFonts, PDFRawStream, PDFName } from 'pdf-lib';
 import { DocumentFile } from '../types';
 import { MOCK_FILES } from '../data';
 import { EditorialProgressBar } from './EditorialProgressBar';
+import { SaaSDB } from '../lib/saasDb';
 
 interface CompressedImageResult {
   bytes: Uint8Array;
@@ -336,6 +337,7 @@ export default function CompressPDFTool({ darkMode, setView, adsterraLink, adste
         percentSaved: Math.max(0, percentSaved),
         downloadUrl
       });
+      SaaSDB.logActivity('COMPRESS_PDF');
       setProgress(100);
       setIsProcessing(false);
     } catch (err: any) {

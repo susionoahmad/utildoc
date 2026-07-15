@@ -34,16 +34,14 @@ export default function SaaSAdminDashboard({ darkMode, setView }: SaaSAdminDashb
   });
 
   // UI States
-  const [activeSubTab, setActiveSubTab] = useState<'overview' | 'users' | 'transactions' | 'gateways'>('overview');
+  const [activeSubTab, setActiveSubTab] = useState<'overview' | 'users' | 'logs' | 'gateways'>('overview');
+  const [activityLogs, setActivityLogs] = useState<any[]>([]);
+  const [toolRanking, setToolRanking] = useState<any[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [planFilter, setPlanFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Live Simulation state
-  const [isSimulating, setIsSimulating] = useState(false);
-  const [simLogs, setSimLogs] = useState<string[]>([]);
-  const simIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // User Form Modals
   const [editingUser, setEditingUser] = useState<SaaSUser | null>(null);
@@ -62,6 +60,12 @@ export default function SaaSAdminDashboard({ darkMode, setView }: SaaSAdminDashb
       setTransactions(data.transactions);
       setSettings(data.settings);
       setMetrics(data.metrics);
+      if (data.activityLogs) setActivityLogs(data.activityLogs);
+      if (data.toolRankings) {
+        setToolRanking(data.toolRankings);
+      } else if (data.toolRanking) {
+        setToolRanking(data.toolRanking);
+      }
     } catch (e) {
       console.error('Failed to load admin data:', e);
     } finally {
@@ -77,106 +81,25 @@ export default function SaaSAdminDashboard({ darkMode, setView }: SaaSAdminDashb
         setTransactions(data.transactions);
         setSettings(data.settings);
         setMetrics(data.metrics);
+        if (data.activityLogs) setActivityLogs(data.activityLogs);
+        if (data.toolRankings) {
+          setToolRanking(data.toolRankings);
+        } else if (data.toolRanking) {
+          setToolRanking(data.toolRanking);
+        }
       } catch (e) {
         console.error('Failed to hydrate admin dashboard:', e);
       }
     };
     initData();
-
-    // Generate initial live logs
-    setSimLogs([
-      `[${new Date().toLocaleTimeString()}] Admin dashboard session authorized.`,
-      `[${new Date().toLocaleTimeString()}] Local memory cells synchronized with PostgreSQL database.`,
-      `[${new Date().toLocaleTimeString()}] SaaS core running on Node.js + Express proxy node.`
-    ]);
-
-    return () => {
-      if (simIntervalRef.current) clearInterval(simIntervalRef.current);
-    };
   }, []);
-
-  // Live Traffic Simulator Logic
-  const handleToggleSimulation = () => {
-    if (isSimulating) {
-      if (simIntervalRef.current) {
-        clearInterval(simIntervalRef.current);
-        simIntervalRef.current = null;
-      }
-      setIsSimulating(false);
-      addLog('Simulation stopped. Engine idling.');
-    } else {
-      setIsSimulating(true);
-      addLog('Traffic simulator initialized. Simulating live requests...');
-      
-      simIntervalRef.current = setInterval(async () => {
-        // Randomly simulate traffic
-        const actionType = Math.random();
-        try {
-          const currentUsers = await SaaSDB.getUsers();
-          if (currentUsers.length === 0) return;
-
-          const randomUser = currentUsers[Math.floor(Math.random() * currentUsers.length)];
-          const timestamp = new Date().toLocaleTimeString();
-
-          if (actionType < 0.5) {
-            // Document Processed Event
-            const docType = ['OCR Scan', 'PDF Compress', 'Merge PDF', 'Password Encrypt', 'Image Conversion'][Math.floor(Math.random() * 5)];
-            const count = Math.floor(1 + Math.random() * 3);
-            
-            // Update User in DB
-            await SaaSDB.updateUser(randomUser.id, {
-              docsProcessed: randomUser.docsProcessed + count
-            });
-            
-            addLog(`[${timestamp}] User (${randomUser.email}) executed ${count} ${docType} tasks.`);
-          } else if (actionType < 0.85) {
-            // Server Status Check
-            const latency = Math.floor(12 + Math.random() * 85);
-            addLog(`[${timestamp}] API Gateway check: 200 OK (${latency}ms) - Region: global-edge`);
-          } else {
-            // Simulated Purchase Event
-            const newPlan = Math.random() > 0.4 ? 'pro' : 'enterprise';
-            const amount = newPlan === 'pro' ? 19.00 : 99.00;
-            const gateway: PaymentGateway = Math.random() > 0.5 ? 'Stripe' : 'Midtrans';
-            
-            const fakeMails = ['clive.types@press.com', 'editorial@vanguard-news.intl', 'helvetica_nerd@design.ch', 'audit_partner@accounting.de', 'agency_manager@marketing.sg'];
-            const pickedMail = fakeMails[Math.floor(Math.random() * fakeMails.length)];
-            const mailPrefix = pickedMail.split('@')[0];
-
-            await SaaSDB.addTransaction({
-              userEmail: pickedMail,
-              plan: newPlan as SubscriptionPlan,
-              amount: amount,
-              gateway: gateway,
-              status: 'completed'
-            });
-
-            addLog(`[${timestamp}] 💰 UPGRADE: ${mailPrefix} bought ${newPlan.toUpperCase()} via ${gateway}! Logged $${amount}.00.`);
-          }
-
-          // Refresh local views
-          const updated = await SaaSDB.getAdminData();
-          setUsers(updated.users);
-          setTransactions(updated.transactions);
-          setMetrics(updated.metrics);
-        } catch (simErr) {
-          console.error('Simulation error:', simErr);
-        }
-
-      }, 3500);
-    }
-  };
-
-  const addLog = (text: string) => {
-    setSimLogs(prev => [text, ...prev.slice(0, 49)]);
-  };
 
   // User Actions handlers
   const handleToggleUserStatus = async (user: SaaSUser) => {
     const newStatus: UserStatus = user.status === 'active' ? 'suspended' : 'active';
     try {
       await SaaSDB.updateUser(user.id, { status: newStatus });
-      addLog(`User ${user.email} status set to ${newStatus.toUpperCase()}`);
+      console.log(`User ${user.email} status set to ${newStatus.toUpperCase()}`);
       const updatedList = await SaaSDB.getUsers();
       setUsers(updatedList);
     } catch (err) {
@@ -193,7 +116,7 @@ export default function SaaSAdminDashboard({ darkMode, setView }: SaaSAdminDashb
         plan: editingUser.plan,
         status: editingUser.status
       });
-      addLog(`User ${editingUser.email} profile modified by administrator.`);
+      console.log(`User ${editingUser.email} profile modified by administrator.`);
       setEditingUser(null);
       const data = await SaaSDB.getAdminData();
       setUsers(data.users);
@@ -213,7 +136,7 @@ export default function SaaSAdminDashboard({ darkMode, setView }: SaaSAdminDashb
         plan: newUserPlan,
         status: 'active'
       });
-      addLog(`Manual Onboard: User ${added.email} created with tier ${added.plan.toUpperCase()}.`);
+      console.log(`Manual Onboard: User ${added.email} created with tier ${added.plan.toUpperCase()}.`);
       setShowAddUserModal(false);
       setNewUserEmail('');
       setNewUserName('');
@@ -230,7 +153,7 @@ export default function SaaSAdminDashboard({ darkMode, setView }: SaaSAdminDashb
     if (confirm(`Are you sure you want to completely remove user ${email}?`)) {
       try {
         await SaaSDB.deleteUser(id);
-        addLog(`User ${email} permanently purged from SaaS directory.`);
+        console.log(`User ${email} permanently purged from SaaS directory.`);
         const data = await SaaSDB.getAdminData();
         setUsers(data.users);
         setMetrics(data.metrics);
@@ -240,14 +163,12 @@ export default function SaaSAdminDashboard({ darkMode, setView }: SaaSAdminDashb
     }
   };
 
-
-
   const handleUpdateSettings = async (key: keyof SaasSettings, val: any) => {
     const updated = { ...settings, [key]: val };
     setSettings(updated);
     try {
       await SaaSDB.saveSettings(updated);
-      addLog(`Global system variable "${key}" adjusted to ${val}.`);
+      console.log(`Global system variable "${key}" adjusted to ${val}.`);
     } catch (err) {
       console.error(err);
     }
@@ -293,29 +214,6 @@ export default function SaaSAdminDashboard({ darkMode, setView }: SaaSAdminDashb
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
             Sync Database
-          </button>
-
-          <button
-            onClick={handleToggleSimulation}
-            className={`px-4 py-2 text-[10px] font-sans font-bold uppercase tracking-widest transition-all border flex items-center gap-2 ${
-              isSimulating 
-                ? 'bg-red-500/10 border-red-500/30 text-red-500 hover:bg-red-500/20' 
-                : darkMode 
-                  ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/20' 
-                  : 'bg-emerald-50 border-emerald-200 text-emerald-800 hover:bg-emerald-100'
-            }`}
-          >
-            {isSimulating ? (
-              <>
-                <Square className="w-3 h-3 fill-current" />
-                Stop Simulation
-              </>
-            ) : (
-              <>
-                <Play className="w-3 h-3 fill-current" />
-                Live Simulator
-              </>
-            )}
           </button>
         </div>
       </div>
@@ -427,7 +325,17 @@ export default function SaaSAdminDashboard({ darkMode, setView }: SaaSAdminDashb
           <Users className="w-3.5 h-3.5" />
           User Directory ({users.length})
         </button>
-
+        <button
+          onClick={() => setActiveSubTab('logs')}
+          className={`px-4 py-2.5 font-sans font-bold uppercase tracking-widest text-[10px] border-b-2 -mb-[2px] transition-all flex items-center gap-1.5 shrink-0 ${
+            activeSubTab === 'logs'
+              ? darkMode ? 'text-[#bfa15f] border-[#bfa15f]' : 'text-[#8c1d1a] border-[#8c1d1a]'
+              : 'text-stone-400 border-transparent hover:text-stone-100'
+          }`}
+        >
+          <FileText className="w-3.5 h-3.5" />
+          User Activity Logs ({activityLogs.length})
+        </button>
         <button
           onClick={() => setActiveSubTab('gateways')}
           className={`px-4 py-2.5 font-sans font-bold uppercase tracking-widest text-[10px] border-b-2 -mb-[2px] transition-all flex items-center gap-1.5 shrink-0 ${
@@ -445,95 +353,56 @@ export default function SaaSAdminDashboard({ darkMode, setView }: SaaSAdminDashb
 
       {/* 1. OVERVIEW & CHARTS TAB */}
       {activeSubTab === 'overview' && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* Chart Segment */}
-          <div className={`p-6 border rounded-none lg:col-span-2 ${
-            darkMode ? 'bg-[#181817] border-stone-800' : 'bg-white border-[#e6e2d8]'
-          }`}>
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 border-b border-dashed border-stone-800/40 pb-4 gap-4">
-              <div>
-                <h4 className="font-serif font-bold text-sm uppercase tracking-wider">Historical Operations Visualizer</h4>
-                <p className="text-[10px] font-serif text-stone-500 mt-0.5">Custom SVG rendering engine matching document conversion metrics.</p>
-              </div>
+        <div className={`p-6 border rounded-none ${
+          darkMode ? 'bg-[#181817] border-stone-800' : 'bg-white border-[#e6e2d8]'
+        }`}>
+          <div className="space-y-4">
+            <div>
+              <h4 className="font-serif font-bold text-sm uppercase tracking-wider">Popular Tool Ranking (All Users & Guests)</h4>
+              <p className="text-[10px] font-serif text-stone-500 mt-0.5">Aggregated metrics combining registered user logs and anonymous guest usage counters.</p>
             </div>
 
-            {/* Premium Custom SVG Chart */}
-            <div className="h-[240px] w-full flex items-center justify-center relative">
-                // Activity Column Bar Graph
-                <svg className="w-full h-full overflow-visible" viewBox="0 0 500 200" preserveAspectRatio="none">
-                  {/* Grid Lines */}
-                  <line x1="0" y1="50" x2="500" y2="50" stroke={darkMode ? "#2c2c2a" : "#eae7e0"} strokeDasharray="3,3" strokeWidth="1" />
-                  <line x1="0" y1="100" x2="500" y2="100" stroke={darkMode ? "#2c2c2a" : "#eae7e0"} strokeDasharray="3,3" strokeWidth="1" />
-                  <line x1="0" y1="150" x2="500" y2="150" stroke={darkMode ? "#2c2c2a" : "#eae7e0"} strokeDasharray="3,3" strokeWidth="1" />
-                  <line x1="0" y1="195" x2="500" y2="195" stroke={darkMode ? "#444" : "#ccc"} strokeWidth="1" />
-
-                  {/* Render Columns */}
-                  <rect x="20" y="120" width="30" height="75" fill={darkMode ? "#3a3a38" : "#e6e2d8"} />
-                  <rect x="100" y="90" width="30" height="105" fill={darkMode ? "#3a3a38" : "#e6e2d8"} />
-                  <rect x="180" y="140" width="30" height="55" fill={darkMode ? "#3a3a38" : "#e6e2d8"} />
-                  <rect x="260" y="70" width="30" height="125" fill={darkMode ? "#3a3a38" : "#e6e2d8"} />
-                  <rect x="340" y="50" width="30" height="145" fill={darkMode ? "#3a3a38" : "#e6e2d8"} />
+            {toolRanking.length === 0 ? (
+              <div className="h-[200px] flex items-center justify-center font-serif text-stone-400 italic border border-dashed border-stone-800/40">
+                No activity records populated yet. Run some conversions first.
+              </div>
+            ) : (
+              <div className="space-y-4 pt-2">
+                {toolRanking.map((item, index) => {
+                  const usage = item.count !== undefined ? Number(item.count) : Number(item.totalUsage || 0);
+                  const maxVal = Math.max(...toolRanking.map(r => r.count !== undefined ? Number(r.count) : Number(r.totalUsage || 0)), 1);
+                  const percentage = Math.min(100, Math.max(8, (usage / maxVal) * 100));
                   
-                  {/* Active Month (Highlight) */}
-                  <rect x="420" y="30" width="30" height="165" fill={darkMode ? "#bfa15f" : "#8c1d1a"} />
-                  <text x="435" y="20" textAnchor="middle" className="text-[9px] font-mono fill-stone-400 font-bold">12.1K</text>
+                  const formatToolName = (type: string) => {
+                    return type.replace(/_/g, ' ');
+                  };
 
-                  {/* Labels */}
-                  <text x="35" y="190" textAnchor="middle" className="text-[8px] font-sans fill-stone-500 font-bold uppercase tracking-wider">Jan</text>
-                  <text x="115" y="190" textAnchor="middle" className="text-[8px] font-sans fill-stone-500 font-bold uppercase tracking-wider">Feb</text>
-                  <text x="195" y="190" textAnchor="middle" className="text-[8px] font-sans fill-stone-500 font-bold uppercase tracking-wider">Mar</text>
-                  <text x="275" y="190" textAnchor="middle" className="text-[8px] font-sans fill-stone-500 font-bold uppercase tracking-wider">Apr</text>
-                  <text x="355" y="190" textAnchor="middle" className="text-[8px] font-sans fill-stone-500 font-bold uppercase tracking-wider">May</text>
-                  <text x="435" y="190" textAnchor="middle" className="text-[8px] font-sans fill-stone-500 font-bold uppercase tracking-wider">Jun</text>
-                </svg>
-            </div>
-            
-            <div className="flex items-center justify-between text-[10px] font-serif text-stone-500 mt-6 pt-4 border-t border-dashed border-stone-800/40">
-              <span className="flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> All core clusters operational</span>
-              <span>Data logs updated 5s ago</span>
-            </div>
+                  return (
+                    <div key={item.toolType} className="space-y-1">
+                      <div className="flex justify-between text-[11px] font-mono">
+                        <span className="font-bold text-stone-300 uppercase tracking-wide flex items-center gap-1.5">
+                          <span className="opacity-50 text-[9px]">#{index + 1}</span>
+                          {formatToolName(item.toolType)}
+                        </span>
+                        <span className="font-bold text-[#bfa15f]">{usage.toLocaleString()} calls</span>
+                      </div>
+                      <div className="w-full h-2 bg-stone-900 border border-stone-800/50 rounded-none overflow-hidden">
+                        <div 
+                          className="h-full bg-gradient-to-r from-[#8c1d1a] to-[#bfa15f] transition-all duration-500" 
+                          style={{ width: `${percentage}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
-
-          {/* Log / Simulated Stream Terminal */}
-          <div className="flex flex-col h-full space-y-6">
-            
-            {/* Simulation Status Card */}
-            <div className={`p-6 border rounded-none flex-grow flex flex-col justify-between ${
-              darkMode ? 'bg-[#181817] border-stone-800' : 'bg-white border-[#e6e2d8]'
-            }`}>
-              <div>
-                <h4 className="font-serif font-bold text-sm uppercase tracking-wider flex items-center justify-between">
-                  <span>Live Production Stream</span>
-                  <span className={`inline-block w-2 h-2 rounded-full ${isSimulating ? 'bg-emerald-500 animate-ping' : 'bg-amber-500'}`} />
-                </h4>
-                <p className="text-[10px] font-serif text-stone-500 mt-1">Live requests from global typeset threads. Enable simulation to stream live activity.</p>
-              </div>
-
-              {/* Console log box */}
-              <div className={`my-4 p-4 rounded-none font-mono text-[9px] h-[160px] overflow-y-auto space-y-2 border ${
-                darkMode ? 'bg-[#121211] border-stone-800/80 text-emerald-400/90' : 'bg-stone-50 border-stone-200 text-stone-700'
-              }`}>
-                {simLogs.map((log, index) => (
-                  <div key={index} className="leading-normal break-all">
-                    {log}
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex justify-between items-center text-[10px]">
-                <button
-                  onClick={() => setSimLogs([])}
-                  className="text-stone-500 hover:underline"
-                >
-                  Clear Console logs
-                </button>
-                <span className="font-mono text-[9px] text-stone-500">Threads count: {isSimulating ? '12 Active' : 'Idle'}</span>
-              </div>
-            </div>
-
+          
+          <div className="flex items-center justify-between text-[10px] font-serif text-stone-500 mt-6 pt-4 border-t border-dashed border-stone-800/40">
+            <span className="flex items-center gap-1"><CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" /> Operational metrics synchronized</span>
+            <span>Data logs updated 5s ago</span>
           </div>
-
         </div>
       )}
 
@@ -686,6 +555,87 @@ export default function SaaSAdminDashboard({ darkMode, setView }: SaaSAdminDashb
       )}
 
 
+
+      {/* 3. USER ACTIVITY LOGS TAB */}
+      {activeSubTab === 'logs' && (
+        <div className={`p-6 border rounded-none ${
+          darkMode ? 'bg-[#181817] border-stone-800' : 'bg-white border-[#e6e2d8]'
+        }`}>
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between pb-6 border-b border-dashed border-stone-800/40 mb-6 gap-4">
+            <div>
+              <h4 className="font-serif font-bold text-sm uppercase tracking-wider">User Activity Directory</h4>
+              <p className="text-[10px] font-serif text-stone-500 mt-1">Chronological history of operations performed by registered human users.</p>
+            </div>
+            
+            {/* Quick search input for logs */}
+            <div className="relative w-full max-w-xs">
+              <Search className="w-4 h-4 absolute left-3 top-2.5 text-stone-500" />
+              <input
+                type="text"
+                placeholder="Filter logs by email or action..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={`w-full pl-9 pr-4 py-1.5 rounded-none text-xs border focus:outline-none font-serif ${
+                  darkMode ? 'bg-[#121211] border-stone-800 text-white' : 'bg-white border-stone-300 text-stone-800'
+                }`}
+              />
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="border-b border-stone-800 dark:border-stone-800/60 pb-3 text-[10px] font-sans font-extrabold uppercase tracking-widest text-stone-400">
+                  <th className="py-3 px-4">User</th>
+                  <th className="py-3 px-4">Action</th>
+                  <th className="py-3 px-4">Description</th>
+                  <th className="py-3 px-4 text-right">Timestamp</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-stone-800/40 dark:divide-stone-800/20 font-mono text-[11px]">
+                {activityLogs
+                  .filter(log => 
+                    (log.userEmail || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                    (log.activityType || '').toLowerCase().includes(searchQuery.toLowerCase())
+                  )
+                  .length === 0 ? (
+                  <tr>
+                    <td colSpan={4} className="py-12 text-center font-serif text-stone-400 italic">
+                      No user activity logs recorded yet.
+                    </td>
+                  </tr>
+                ) : (
+                  activityLogs
+                    .filter(log => 
+                      (log.userEmail || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+                      (log.activityType || '').toLowerCase().includes(searchQuery.toLowerCase())
+                    )
+                    .map((log) => (
+                      <tr key={log.id} className="hover:bg-stone-50/20 dark:hover:bg-stone-900/10 transition-all">
+                        <td className="py-3 px-4 font-sans text-xs font-bold">{log.userEmail || 'System'}</td>
+                        <td className="py-3 px-4">
+                          <span className={`px-2 py-0.5 text-[9px] font-bold font-sans uppercase tracking-wider rounded-none ${
+                            (log.activityType || '').includes('AUTH') || (log.activityType || '').includes('REGISTER') || (log.activityType || '').includes('LOGIN')
+                              ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
+                              : (log.activityType || '').includes('OCR') || (log.activityType || '').includes('AI')
+                                ? 'bg-purple-500/10 text-purple-400 border border-purple-500/20'
+                                : 'bg-[#bfa15f]/10 text-[#bfa15f] border border-[#bfa15f]/20'
+                          }`}>
+                            {(log.activityType || '').replace(/_/g, ' ')}
+                          </span>
+                        </td>
+                        <td className="py-3 px-4 text-stone-400 font-serif">{log.description || '-'}</td>
+                        <td className="py-3 px-4 text-right text-stone-400">
+                          {log.date}
+                        </td>
+                      </tr>
+                    ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* 4. GATEWAY CONFIGURATOR & NODE SETTINGS */}
       {activeSubTab === 'gateways' && (

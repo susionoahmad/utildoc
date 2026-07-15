@@ -7,6 +7,7 @@ import {
 import { DocumentFile } from '../types';
 import { MOCK_FILES } from '../data';
 import { EditorialProgressBar } from './EditorialProgressBar';
+import { SaaSDB } from '../lib/saasDb';
 
 interface PDFMetadataToolProps {
   darkMode: boolean;
@@ -207,6 +208,13 @@ export default function PDFMetadataTool({ darkMode, setView }: PDFMetadataToolPr
     setMetadata(null);
     setErrorMsg(null);
   };
+
+  // Log metadata inspection tool usage
+  React.useEffect(() => {
+    if (metadata) {
+      SaaSDB.logActivity('VIEW_METADATA');
+    }
+  }, [metadata]);
 
   // Keyboard shortcut listener
   React.useEffect(() => {

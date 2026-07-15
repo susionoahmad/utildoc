@@ -15,7 +15,7 @@ import OCRScanTool from './components/OCRScanTool';
 import AIFixTool from './components/AIFixTool';
 import SaaSAdminDashboard from './components/SaaSAdminDashboard';
 import { SaaSDB } from './lib/saasDb';
-import { Sparkles, Layers, ShieldCheck, Mail, GitBranch, Terminal } from 'lucide-react';
+import { Sparkles, Layers, ShieldCheck, Mail, GitBranch, Terminal, Lock } from 'lucide-react';
 
 export default function App() {
   const [currentView, setView] = useState<string>('dashboard');
@@ -23,6 +23,40 @@ export default function App() {
   const [showShortcutsLegend, setShowShortcutsLegend] = useState<boolean>(false);
   const [adsterraLink, setAdsterraLink] = useState<string>('https://www.profitablecpmgate.com/o84mgnk2?key=38198f7df43e93657788ea12030b65f3');
   const [adsterraActive, setAdsterraActive] = useState<boolean>(true);
+
+  // Centralized authentication states
+  const [isLoggedIn, setIsLoggedIn] = useState<boolean>(false);
+  const [email, setEmail] = useState<string>('');
+  const [isAdmin, setIsAdmin] = useState<boolean>(false);
+  const [userPlan, setUserPlan] = useState<string>('starter');
+  const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
+
+  // Synchronize session state globally
+  useEffect(() => {
+    const handleSyncSession = async () => {
+      const activeSession = await SaaSDB.getActiveUserSession();
+      if (activeSession && activeSession.isLoggedIn) {
+        setIsLoggedIn(true);
+        setEmail(activeSession.email);
+        setUserPlan(activeSession.plan);
+        setIsAdmin(activeSession.role === 'admin');
+      } else {
+        setIsLoggedIn(false);
+        setEmail('');
+        setUserPlan('starter');
+        setIsAdmin(false);
+      }
+    };
+
+    handleSyncSession();
+    window.addEventListener('storage', handleSyncSession);
+    const interval = setInterval(handleSyncSession, 2000);
+
+    return () => {
+      window.removeEventListener('storage', handleSyncSession);
+      clearInterval(interval);
+    };
+  }, []);
 
   // Sync active Adsterra config on load and view changes
   useEffect(() => {
@@ -88,6 +122,8 @@ export default function App() {
     return () => window.removeEventListener('keydown', handleGlobalKeyDown);
   }, [currentView, showShortcutsLegend]);
 
+  const isToolBlocked = !isLoggedIn && (currentView === 'ocr-scan' || currentView === 'ai-fix');
+
   return (
     <div className={`min-h-screen flex flex-col transition-colors duration-300 ${
       darkMode ? 'bg-[#121211] text-[#eae7e0] font-sans' : 'bg-[#FAF9F5] text-[#1c1c1a] font-sans'
@@ -101,155 +137,220 @@ export default function App() {
         setDarkMode={setDarkMode} 
         adsterraLink={adsterraLink}
         adsterraActive={adsterraActive}
+        isLoggedIn={isLoggedIn}
+        setIsLoggedIn={setIsLoggedIn}
+        email={email}
+        setEmail={setEmail}
+        isAdmin={isAdmin}
+        setIsAdmin={setIsAdmin}
+        userPlan={userPlan}
+        setUserPlan={setUserPlan}
+        showLoginModal={showLoginModal}
+        setShowLoginModal={setShowLoginModal}
       />
 
       {/* Main Content Stage */}
       <main className="flex-grow">
-        {currentView === 'dashboard' && (
-          <ToolGrid 
-            darkMode={darkMode} 
-            onSelectTool={(toolId) => setView(toolId)} 
-            adsterraLink={adsterraLink}
-            adsterraActive={adsterraActive}
-          />
-        )}
-        {currentView === 'merge-pdf' && (
-          <MergePDFTool 
-            darkMode={darkMode} 
-            setView={setView} 
-            adsterraLink={adsterraLink}
-            adsterraActive={adsterraActive}
-          />
-        )}
-        {currentView === 'split-pdf' && (
-          <SplitPDFTool 
-            darkMode={darkMode} 
-            setView={setView} 
-            adsterraLink={adsterraLink}
-            adsterraActive={adsterraActive}
-          />
-        )}
-        {currentView === 'compress-pdf' && (
-          <CompressPDFTool 
-            darkMode={darkMode} 
-            setView={setView} 
-            adsterraLink={adsterraLink}
-            adsterraActive={adsterraActive}
-          />
-        )}
-        {currentView === 'view-metadata' && (
-          <PDFMetadataTool 
-            darkMode={darkMode} 
-            setView={setView} 
-          />
-        )}
-        {currentView === 'rotate-pdf' && (
-          <RotatePDFTool 
-            darkMode={darkMode} 
-            setView={setView} 
-          />
-        )}
-        {currentView === 'watermark-pdf' && (
-          <WatermarkPDFTool 
-            darkMode={darkMode} 
-            setView={setView} 
-          />
-        )}
-        {currentView === 'encrypt-pdf' && (
-          <PasswordProtectPDFTool 
-            darkMode={darkMode} 
-            setView={setView} 
-          />
-        )}
-        {currentView === 'pdf-to-image' && (
-          <PDFToImageTool 
-            darkMode={darkMode} 
-            setView={setView} 
-          />
-        )}
-        {currentView === 'image-to-pdf' && (
-          <ImageToPDFTool 
-            darkMode={darkMode} 
-            setView={setView} 
-          />
-        )}
-        {currentView === 'image-converter' && (
-          <ImageConverterTool 
-            darkMode={darkMode} 
-            setView={setView} 
-          />
-        )}
-        {currentView === 'ocr-scan' && (
-          <OCRScanTool 
-            darkMode={darkMode} 
-            setView={setView} 
-          />
-        )}
-        {currentView === 'ai-fix' && (
-          <AIFixTool 
-            darkMode={darkMode} 
-            setView={setView} 
-          />
-        )}
-        {currentView === 'saas-admin' && (
-          <SaaSAdminDashboard 
-            darkMode={darkMode} 
-            setView={setView} 
-          />
-        )}
-
-        {/* Fallback View for clicked items under construction */}
-        {!['dashboard', 'merge-pdf', 'split-pdf', 'compress-pdf', 'pdf-to-image', 'image-to-pdf', 'image-converter', 'ocr-scan', 'ai-fix', 'view-metadata', 'rotate-pdf', 'watermark-pdf', 'encrypt-pdf', 'saas-admin'].includes(currentView) && (
+        {isToolBlocked ? (
           <div className="max-w-xl mx-auto px-6 py-24 text-center">
-            <div className={`w-12 h-12 rounded-none border flex items-center justify-center mx-auto mb-6 ${
-              darkMode ? 'border-[#333331] text-[#bfa15f]/80' : 'border-[#e5e0d4] text-[#8c1d1a]'
+            <div className={`w-14 h-14 rounded-none border flex items-center justify-center mx-auto mb-6 ${
+              darkMode ? 'border-[#bfa15f]/25 text-[#bfa15f] bg-[#1a1610]' : 'border-[#8c1d1a]/20 text-[#8c1d1a] bg-[#fffbeb]'
             }`}>
-              <Terminal className="w-5 h-5 animate-pulse" />
+              <Lock className="w-5 h-5 animate-pulse" />
             </div>
             <h2 className={`text-3xl font-serif font-medium mb-3 italic tracking-tight ${
               darkMode ? 'text-white' : 'text-stone-900'
             }`}>
-              Under Editorial Review
+              Authentication Required
             </h2>
-            <p className={`text-xs font-serif leading-relaxed mb-8 max-w-md mx-auto ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
-              The utility <span className="font-bold underline tracking-wide uppercase font-sans text-[10px]">"{currentView.replace('-', ' ')}"</span> is currently in production in our offline typesetting studio.
+            <p className={`text-xs font-serif leading-relaxed mb-8 max-w-sm mx-auto ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
+              Untuk menggunakan layanan OCR Scanner dan AI Text Fix yang didukung oleh API server Gemini, silakan masuk ke akun UtilDoc Anda terlebih dahulu.
             </p>
             
-            <div className={`p-5 rounded-none border text-left mb-8 flex items-start gap-4 ${
-              darkMode ? 'bg-[#181817] border-[#2c2c2a]' : 'bg-[#fcfbf9] border-[#e6e1d5]'
-            }`}>
-              <Sparkles className={`w-4 h-4 shrink-0 mt-0.5 ${darkMode ? 'text-[#bfa15f]' : 'text-[#8c1d1a]'}`} />
-              <div>
-                <p className="text-[11px] font-sans font-bold uppercase tracking-wider">Typesetting Staging Active</p>
-                <p className={`text-[11px] font-serif leading-normal mt-1.5 ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
-                  Our production-grade <strong className="font-sans">Merge PDF</strong>, <strong className="font-sans">Split PDF</strong>, and <strong className="font-sans">Compress PDF</strong> layouts are fully typeset and operational.
-                </p>
-              </div>
-            </div>
-
             <div className="flex justify-center gap-4">
               <button
-                onClick={() => setView('dashboard')}
-                className={`px-6 py-2 text-xs font-sans font-bold uppercase tracking-widest transition-all ${
+                onClick={() => setShowLoginModal(true)}
+                className={`px-6 py-3 text-xs font-sans font-bold uppercase tracking-widest transition-all ${
                   darkMode 
-                    ? 'bg-[#eae7e0] text-[#121211] hover:bg-[#eae7e0]/90' 
-                    : 'bg-[#1c1c1a] text-[#FAF9F5] hover:bg-[#1c1c1a]/90'
+                    ? 'bg-[#eae7e0] text-[#121211] hover:bg-white' 
+                    : 'bg-[#1c1c1a] text-[#FAF9F5] hover:bg-stone-800'
                 }`}
               >
-                Go Back
+                Sign In / Register
               </button>
               <button
-                onClick={() => setView('merge-pdf')}
-                className={`px-6 py-2 text-xs font-sans font-bold uppercase tracking-widest border transition-all ${
+                onClick={() => setView('dashboard')}
+                className={`px-6 py-3 text-xs font-sans font-bold uppercase tracking-widest border transition-all ${
                   darkMode 
                     ? 'border-[#3a3a38] text-stone-300 hover:bg-[#1c1c1a]' 
                     : 'border-[#d8d4ca] text-stone-700 hover:bg-[#eae7e0]/20'
                 }`}
               >
-                Try Merge
+                Kembali ke Katalog
               </button>
             </div>
           </div>
+        ) : (
+          <>
+            {currentView === 'dashboard' && (
+              <ToolGrid 
+                darkMode={darkMode} 
+                onSelectTool={(toolId) => setView(toolId)} 
+                adsterraLink={adsterraLink}
+                adsterraActive={adsterraActive}
+              />
+            )}
+            {currentView === 'merge-pdf' && (
+              <MergePDFTool 
+                darkMode={darkMode} 
+                setView={setView} 
+                adsterraLink={adsterraLink}
+                adsterraActive={adsterraActive}
+                isLoggedIn={isLoggedIn}
+              />
+            )}
+            {currentView === 'split-pdf' && (
+              <SplitPDFTool 
+                darkMode={darkMode} 
+                setView={setView} 
+                adsterraLink={adsterraLink}
+                adsterraActive={adsterraActive}
+                isLoggedIn={isLoggedIn}
+              />
+            )}
+            {currentView === 'compress-pdf' && (
+              <CompressPDFTool 
+                darkMode={darkMode} 
+                setView={setView} 
+                adsterraLink={adsterraLink}
+                adsterraActive={adsterraActive}
+                isLoggedIn={isLoggedIn}
+              />
+            )}
+            {currentView === 'view-metadata' && (
+              <PDFMetadataTool 
+                darkMode={darkMode} 
+                setView={setView} 
+                isLoggedIn={isLoggedIn}
+              />
+            )}
+            {currentView === 'rotate-pdf' && (
+              <RotatePDFTool 
+                darkMode={darkMode} 
+                setView={setView} 
+                isLoggedIn={isLoggedIn}
+              />
+            )}
+            {currentView === 'watermark-pdf' && (
+              <WatermarkPDFTool 
+                darkMode={darkMode} 
+                setView={setView} 
+                isLoggedIn={isLoggedIn}
+              />
+            )}
+            {currentView === 'encrypt-pdf' && (
+              <PasswordProtectPDFTool 
+                darkMode={darkMode} 
+                setView={setView} 
+                isLoggedIn={isLoggedIn}
+              />
+            )}
+            {currentView === 'pdf-to-image' && (
+              <PDFToImageTool 
+                darkMode={darkMode} 
+                setView={setView} 
+                isLoggedIn={isLoggedIn}
+              />
+            )}
+            {currentView === 'image-to-pdf' && (
+              <ImageToPDFTool 
+                darkMode={darkMode} 
+                setView={setView} 
+                isLoggedIn={isLoggedIn}
+              />
+            )}
+            {currentView === 'image-converter' && (
+              <ImageConverterTool 
+                darkMode={darkMode} 
+                setView={setView} 
+                isLoggedIn={isLoggedIn}
+              />
+            )}
+            {currentView === 'ocr-scan' && (
+              <OCRScanTool 
+                darkMode={darkMode} 
+                setView={setView} 
+                isLoggedIn={isLoggedIn}
+              />
+            )}
+            {currentView === 'ai-fix' && (
+              <AIFixTool 
+                darkMode={darkMode} 
+                setView={setView} 
+                isLoggedIn={isLoggedIn}
+              />
+            )}
+            {currentView === 'saas-admin' && (
+              <SaaSAdminDashboard 
+                darkMode={darkMode} 
+                setView={setView} 
+              />
+            )}
+
+            {/* Fallback View for clicked items under construction */}
+            {!['dashboard', 'merge-pdf', 'split-pdf', 'compress-pdf', 'pdf-to-image', 'image-to-pdf', 'image-converter', 'ocr-scan', 'ai-fix', 'view-metadata', 'rotate-pdf', 'watermark-pdf', 'encrypt-pdf', 'saas-admin'].includes(currentView) && (
+              <div className="max-w-xl mx-auto px-6 py-24 text-center">
+                <div className={`w-12 h-12 rounded-none border flex items-center justify-center mx-auto mb-6 ${
+                  darkMode ? 'border-[#333331] text-[#bfa15f]/80' : 'border-[#e5e0d4] text-[#8c1d1a]'
+                }`}>
+                  <Terminal className="w-5 h-5 animate-pulse" />
+                </div>
+                <h2 className={`text-3xl font-serif font-medium mb-3 italic tracking-tight ${
+                  darkMode ? 'text-white' : 'text-stone-900'
+                }`}>
+                  Under Editorial Review
+                </h2>
+                <p className={`text-xs font-serif leading-relaxed mb-8 max-w-md mx-auto ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
+                  The utility <span className="font-bold underline tracking-wide uppercase font-sans text-[10px]">"{currentView.replace('-', ' ')}"</span> is currently in production in our offline typesetting studio.
+                </p>
+                
+                <div className={`p-5 rounded-none border text-left mb-8 flex items-start gap-4 ${
+                  darkMode ? 'bg-[#181817] border-[#2c2c2a]' : 'bg-[#fcfbf9] border-[#e6e1d5]'
+                }`}>
+                  <Sparkles className={`w-4 h-4 shrink-0 mt-0.5 ${darkMode ? 'text-[#bfa15f]' : 'text-[#8c1d1a]'}`} />
+                  <div>
+                    <p className="text-[11px] font-sans font-bold uppercase tracking-wider">Typesetting Staging Active</p>
+                    <p className={`text-[11px] font-serif leading-normal mt-1.5 ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
+                      Our production-grade <strong className="font-sans">Merge PDF</strong>, <strong className="font-sans">Split PDF</strong>, and <strong className="font-sans">Compress PDF</strong> layouts are fully typeset and operational.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex justify-center gap-4">
+                  <button
+                    onClick={() => setView('dashboard')}
+                    className={`px-6 py-2 text-xs font-sans font-bold uppercase tracking-widest transition-all ${
+                      darkMode 
+                        ? 'bg-[#eae7e0] text-[#121211] hover:bg-[#eae7e0]/90' 
+                        : 'bg-[#1c1c1a] text-[#FAF9F5] hover:bg-[#1c1c1a]/90'
+                    }`}
+                  >
+                    Go Back
+                  </button>
+                  <button
+                    onClick={() => setView('merge-pdf')}
+                    className={`px-6 py-2 text-xs font-sans font-bold uppercase tracking-widest border transition-all ${
+                      darkMode 
+                        ? 'border-[#3a3a38] text-stone-300 hover:bg-[#1c1c1a]' 
+                        : 'border-[#d8d4ca] text-stone-700 hover:bg-[#eae7e0]/20'
+                    }`}
+                  >
+                    Try Merge
+                  </button>
+                </div>
+              </div>
+            )}
+          </>
         )}
       </main>
 

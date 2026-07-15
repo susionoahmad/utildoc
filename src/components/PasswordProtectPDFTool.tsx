@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { DocumentFile } from '../types';
 import { EditorialProgressBar } from './EditorialProgressBar';
+import { SaaSDB } from '../lib/saasDb';
 
 function uint8ToBase64(arr: Uint8Array): string {
   let binary = '';
@@ -578,6 +579,7 @@ export default function PasswordProtectPDFTool({ darkMode, setView }: PasswordPr
         size: finalPdfBytes.length,
         action: 'encrypted'
       });
+      SaaSDB.logActivity('ENCRYPT_PDF');
       setIsProcessing(false);
     } catch (err: any) {
       console.error(err);
@@ -701,6 +703,7 @@ export default function PasswordProtectPDFTool({ darkMode, setView }: PasswordPr
         size: decryptedBytes.length,
         action: 'decrypted'
       });
+      SaaSDB.logActivity('ENCRYPT_PDF');
       setIsProcessing(false);
     } catch (err: any) {
       console.error(err);

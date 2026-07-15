@@ -6,6 +6,7 @@ import {
 } from 'lucide-react';
 import { DocumentFile } from '../types';
 import { EditorialProgressBar } from './EditorialProgressBar';
+import { SaaSDB } from '../lib/saasDb';
 
 interface WatermarkPDFToolProps {
   darkMode: boolean;
@@ -514,6 +515,7 @@ export default function WatermarkPDFTool({ darkMode, setView }: WatermarkPDFTool
       const downloadUrl = URL.createObjectURL(blob);
 
       setTimeout(() => {
+        SaaSDB.logActivity('WATERMARK_PDF');
         setResult({
           name: file.name.replace('.pdf', '_watermarked.pdf'),
           downloadUrl,

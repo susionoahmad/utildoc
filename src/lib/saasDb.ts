@@ -55,7 +55,7 @@ export class SaaSDB {
 
   // --- Auth APIs ---
 
-  static async getActiveUserSession(): Promise<{ isLoggedIn: boolean; email: string; plan: SubscriptionPlan; name: string } | null> {
+  static async getActiveUserSession(): Promise<{ isLoggedIn: boolean; email: string; plan: SubscriptionPlan; name: string; role?: string } | null> {
     const token = localStorage.getItem('utildoc_session_token');
     if (!token) return null;
     try {
@@ -76,7 +76,7 @@ export class SaaSDB {
     }
   }
 
-  static async login(email: string, password: string): Promise<{ isLoggedIn: boolean; email: string; plan: SubscriptionPlan; name: string }> {
+  static async login(email: string, password: string): Promise<{ isLoggedIn: boolean; email: string; plan: SubscriptionPlan; name: string; role?: string }> {
     const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -106,7 +106,7 @@ export class SaaSDB {
     }
   }
 
-  static async register(email: string, password: string, name: string): Promise<{ isLoggedIn: boolean; email: string; plan: SubscriptionPlan; name: string }> {
+  static async register(email: string, password: string, name: string): Promise<{ isLoggedIn: boolean; email: string; plan: SubscriptionPlan; name: string; role?: string }> {
     const res = await fetch('/api/auth/register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -119,6 +119,30 @@ export class SaaSDB {
     const data = await res.json();
     localStorage.setItem('utildoc_session_token', data.token);
     return data.session;
+  }
+
+  static async logActivity(toolType: string): Promise<void> {
+    try {
+      await fetch('/api/activity/log', {
+        method: 'POST',
+        headers: this.getHeaders(),
+        body: JSON.stringify({ toolType })
+      });
+    } catch (e) {
+      console.error('Failed to log activity:', e);
+    }
+  }
+
+  static async changePassword(currentPassword: string, newPassword: string): Promise<void> {
+    const res = await fetch('/api/auth/change-password', {
+      method: 'POST',
+      headers: this.getHeaders(),
+      body: JSON.stringify({ currentPassword, newPassword })
+    });
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || 'Failed to change password.');
+    }
   }
 
   // --- Billing / Checkout API ---
@@ -164,7 +188,7 @@ export class SaaSDB {
     return data.metrics;
   }
 
-  static async getAdminData(): Promise<{ users: SaaSUser[]; transactions: SaasTransaction[]; settings: SaasSettings; metrics: SaaSMetrics }> {
+  static async getAdminData(): Promise<{ users: SaaSUser[]; transactions: SaasTransaction[]; settings: SaasSettings; metrics: SaaSMetrics; activityLogs?: any[]; toolRanking?: any[] }> {
     const res = await fetch('/api/admin/data', { headers: this.getHeaders() });
     if (!res.ok) throw new Error('Failed to fetch admin dashboard payload');
     return res.json();

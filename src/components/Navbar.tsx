@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sun, Moon, Layers, ShieldCheck, HelpCircle, LogIn, Sparkles, LogOut, CheckCircle2, Server } from 'lucide-react';
+import { Sun, Moon, Layers, ShieldCheck, HelpCircle, LogIn, Sparkles, LogOut, CheckCircle2, Server, Key } from 'lucide-react';
 import { SaaSDB } from '../lib/saasDb';
 
 interface NavbarProps {
@@ -9,48 +9,83 @@ interface NavbarProps {
   setDarkMode: (dark: boolean) => void;
   adsterraLink: string;
   adsterraActive: boolean;
+  isLoggedIn: boolean;
+  setIsLoggedIn: (logged: boolean) => void;
+  email: string;
+  setEmail: (email: string) => void;
+  isAdmin: boolean;
+  setIsAdmin: (admin: boolean) => void;
+  userPlan: string;
+  setUserPlan: (plan: string) => void;
+  showLoginModal: boolean;
+  setShowLoginModal: (show: boolean) => void;
 }
 
-export default function Navbar({ currentView, setView, darkMode, setDarkMode, adsterraLink, adsterraActive }: NavbarProps) {
-  const [showLoginModal, setShowLoginModal] = useState(false);
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [email, setEmail] = useState('');
-  const [userPlan, setUserPlan] = useState<string>('starter');
+export default function Navbar({ 
+  currentView, setView, darkMode, setDarkMode, adsterraLink, adsterraActive,
+  isLoggedIn, setIsLoggedIn, email, setEmail, isAdmin, setIsAdmin, userPlan, setUserPlan,
+  showLoginModal, setShowLoginModal
+}: NavbarProps) {
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
   const [name, setName] = useState('');
+  const [loginEmail, setLoginEmail] = useState('');
 
-  // Synchronize with SaaS DB Active Session
-  React.useEffect(() => {
-    const handleSyncSession = async () => {
-      const activeSession = await SaaSDB.getActiveUserSession();
-      if (activeSession && activeSession.isLoggedIn) {
-        setIsLoggedIn(true);
-        setEmail(activeSession.email);
-        setUserPlan(activeSession.plan);
-      } else {
-        setIsLoggedIn(false);
-        setUserPlan('starter');
-      }
-    };
+  // Change Password States
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [changePasswordError, setChangePasswordError] = useState('');
+  const [changePasswordSuccess, setChangePasswordSuccess] = useState('');
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
 
-    handleSyncSession();
-    
-    // Periodically sync user subscription tier in case they upgraded via pricing plans
-    window.addEventListener('storage', handleSyncSession);
-    const interval = setInterval(handleSyncSession, 2000); // Poll server changes too
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentPassword || !newPassword || !confirmPassword) {
+      setChangePasswordError('Semua field wajib diisi.');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setChangePasswordError('Password baru dan konfirmasi password tidak cocok.');
+      return;
+    }
+    if (newPassword.length < 6) {
+      setChangePasswordError('Password baru minimal 6 karakter.');
+      return;
+    }
 
-    return () => {
-      window.removeEventListener('storage', handleSyncSession);
-      clearInterval(interval);
-    };
-  }, [currentView]);
+    setChangePasswordError('');
+    setChangePasswordSuccess('');
+    setIsChangingPassword(true);
+
+    try {
+      await SaaSDB.changePassword(currentPassword, newPassword);
+      setChangePasswordSuccess('Password berhasil diperbarui.');
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setTimeout(() => {
+        setShowChangePasswordModal(false);
+        setChangePasswordSuccess('');
+      }, 2000);
+    } catch (err: any) {
+      setChangePasswordError(err.message || 'Gagal mengganti password.');
+    } finally {
+      setIsChangingPassword(false);
+    }
+  };
 
   // Close modal on Escape key press
   React.useEffect(() => {
-    if (!showLoginModal) return;
+    if (!showLoginModal) {
+      setLoginEmail('');
+      setPassword('');
+      setLoginError('');
+      return;
+    }
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         setShowLoginModal(false);
@@ -62,16 +97,18 @@ export default function Navbar({ currentView, setView, darkMode, setDarkMode, ad
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password) {
+    if (!loginEmail || !password) {
       setLoginError('Please enter both email and password.');
       return;
     }
     setLoginError('');
     try {
       setSuccessMsg('Authenticating...');
-      const session = await SaaSDB.login(email, password);
+      const session = await SaaSDB.login(loginEmail, password);
       setIsLoggedIn(true);
+      setEmail(session.email);
       setUserPlan(session.plan);
+      setIsAdmin(session.role === 'admin');
       setSuccessMsg('Logged in successfully!');
       
       setTimeout(() => {
@@ -86,7 +123,7 @@ export default function Navbar({ currentView, setView, darkMode, setDarkMode, ad
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || !password || !name) {
+    if (!loginEmail || !password || !name) {
       setLoginError('Please enter your name, email, and password.');
       return;
     }
@@ -97,9 +134,11 @@ export default function Navbar({ currentView, setView, darkMode, setDarkMode, ad
     setLoginError('');
     try {
       setSuccessMsg('Creating account...');
-      const session = await SaaSDB.register(email, password, name);
+      const session = await SaaSDB.register(loginEmail, password, name);
       setIsLoggedIn(true);
+      setEmail(session.email);
       setUserPlan(session.plan);
+      setIsAdmin(session.role === 'admin');
       setSuccessMsg('Registered & Logged in successfully!');
       
       setTimeout(() => {
@@ -124,6 +163,7 @@ export default function Navbar({ currentView, setView, darkMode, setDarkMode, ad
     setEmail('');
     setPassword('');
     setUserPlan('starter');
+    setIsAdmin(false);
     if (currentView === 'saas-admin') {
       setView('dashboard');
     }
@@ -205,7 +245,7 @@ export default function Navbar({ currentView, setView, darkMode, setDarkMode, ad
               )}
               
               {/* SaaS Admin Portal */}
-              {isLoggedIn && (
+              {isLoggedIn && isAdmin && (
                 <button
                   id="nav-btn-admin"
                   onClick={() => setView('saas-admin')}
@@ -246,6 +286,22 @@ export default function Navbar({ currentView, setView, darkMode, setDarkMode, ad
                       <span className="w-1.5 h-1.5 rounded-full animate-pulse bg-emerald-400"></span> Active Member
                     </span>
                   </div>
+                  <button
+                    onClick={() => {
+                      setChangePasswordError('');
+                      setChangePasswordSuccess('');
+                      setShowChangePasswordModal(true);
+                    }}
+                    className={`p-2 rounded-none border flex items-center gap-1.5 text-xs font-sans font-bold uppercase tracking-wider transition-all duration-200 ${
+                      darkMode
+                        ? 'border-[#2c2c2a] bg-[#181817] hover:bg-[#20201f] text-stone-300'
+                        : 'border-[#e6e2d8] bg-[#FAF9F5] hover:bg-stone-50 hover:border-stone-300 text-stone-600'
+                    }`}
+                    title="Change Password"
+                  >
+                    <Key className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline pr-0.5">Ganti Password</span>
+                  </button>
                   <button
                     id="logout-btn"
                     onClick={handleLogout}
@@ -359,8 +415,8 @@ export default function Navbar({ currentView, setView, darkMode, setDarkMode, ad
                     type="email"
                     required
                     placeholder="name@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
                     className={`w-full px-4 py-2.5 rounded-none text-sm border focus:outline-none focus:ring-1 focus:ring-stone-400/50 transition-all font-mono ${
                       darkMode 
                         ? 'bg-[#181817] border-[#2c2c2a] text-white' 
@@ -432,8 +488,8 @@ export default function Navbar({ currentView, setView, darkMode, setDarkMode, ad
                     type="email"
                     required
                     placeholder="name@example.com"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={loginEmail}
+                    onChange={(e) => setLoginEmail(e.target.value)}
                     className={`w-full px-4 py-2.5 rounded-none text-sm border focus:outline-none focus:ring-1 focus:ring-stone-400/50 transition-all font-mono ${
                       darkMode 
                         ? 'bg-[#181817] border-[#2c2c2a] text-white' 
@@ -496,6 +552,113 @@ export default function Navbar({ currentView, setView, darkMode, setDarkMode, ad
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Change Password Modal */}
+      {showChangePasswordModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
+          {/* Backdrop */}
+          <div 
+            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setShowChangePasswordModal(false)}
+          ></div>
+          
+          {/* Form Container */}
+          <div className={`relative w-full max-w-md rounded-none p-8 shadow-2xl border transition-all duration-200 animate-in fade-in zoom-in-95 duration-150 ${
+            darkMode ? 'bg-[#121211] border-[#2c2c2a] text-[#eae7e0]' : 'bg-[#FAF9F5] border-[#e6e2d8] text-[#1c1c1a]'
+          }`}>
+            <div className="absolute top-4 right-4">
+              <button 
+                onClick={() => setShowChangePasswordModal(false)}
+                className={`p-1 border rounded-none transition-colors duration-150 ${
+                  darkMode ? 'hover:bg-stone-800/80 border-[#2c2c2a] text-stone-400' : 'hover:bg-stone-200/50 border-[#e6e2d8] text-stone-500'
+                }`}
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="mb-6">
+              <div className="flex items-center gap-2 mb-2">
+                <Key className="w-5 h-5 text-[#bfa15f]" />
+                <h3 className="text-lg font-serif font-bold uppercase tracking-wider">Ganti Password</h3>
+              </div>
+              <p className={`text-[10px] font-serif ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
+                Perbarui kata sandi akun Anda secara aman.
+              </p>
+            </div>
+
+            {changePasswordError && (
+              <div className="mb-4 p-3 text-xs bg-red-500/10 border border-red-500/20 text-red-500 font-serif">
+                ⚠️ {changePasswordError}
+              </div>
+            )}
+
+            {changePasswordSuccess && (
+              <div className="mb-4 p-3 text-xs bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-serif">
+                ✓ {changePasswordSuccess}
+              </div>
+            )}
+
+            <form onSubmit={handleChangePassword} className="space-y-4 text-xs font-serif">
+              <div>
+                <label className="block font-bold mb-1 uppercase tracking-wide">Password Saat Ini</label>
+                <input
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className={`w-full p-2.5 rounded-none border focus:outline-none focus:ring-1 focus:ring-[#bfa15f] font-mono ${
+                    darkMode ? 'bg-[#181817] border-[#2c2c2a] text-white' : 'bg-white border-stone-300 text-stone-900'
+                  }`}
+                  placeholder="••••••••"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold mb-1 uppercase tracking-wide">Password Baru</label>
+                <input
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className={`w-full p-2.5 rounded-none border focus:outline-none focus:ring-1 focus:ring-[#bfa15f] font-mono ${
+                    darkMode ? 'bg-[#181817] border-[#2c2c2a] text-white' : 'bg-white border-stone-300 text-stone-900'
+                  }`}
+                  placeholder="Min 6 karakter"
+                  required
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold mb-1 uppercase tracking-wide">Konfirmasi Password Baru</label>
+                <input
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className={`w-full p-2.5 rounded-none border focus:outline-none focus:ring-1 focus:ring-[#bfa15f] font-mono ${
+                    darkMode ? 'bg-[#181817] border-[#2c2c2a] text-white' : 'bg-white border-stone-300 text-stone-900'
+                  }`}
+                  placeholder="Ulangi password baru"
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
+                disabled={isChangingPassword}
+                className={`w-full py-2.5 font-sans font-bold uppercase tracking-widest text-[10px] border transition-all duration-200 ${
+                  isChangingPassword 
+                    ? 'opacity-50 cursor-not-allowed'
+                    : darkMode 
+                      ? 'bg-[#bfa15f] hover:bg-[#a68a4d] border-transparent text-[#121211]' 
+                      : 'bg-[#8c1d1a] hover:bg-[#6e1614] border-transparent text-white'
+                }`}
+              >
+                {isChangingPassword ? 'Memperbarui...' : 'Simpan Perubahan'}
+              </button>
+            </form>
           </div>
         </div>
       )}
