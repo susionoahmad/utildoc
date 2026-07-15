@@ -3,12 +3,14 @@ import { TOOLS } from '../data';
 import { Tool, ToolCategory } from '../types';
 import * as Icons from 'lucide-react';
 import { Search, Sparkles, HelpCircle } from 'lucide-react';
+import { Language, translations, toolTranslations } from '../lib/translations';
 
 interface ToolGridProps {
   darkMode: boolean;
   onSelectTool: (toolId: string) => void;
   adsterraLink: string;
   adsterraActive: boolean;
+  lang: Language;
 }
 
 // Icon mapper to dynamically look up Lucide icons
@@ -18,22 +20,24 @@ const IconComponent = ({ name, className }: { name: string; className?: string }
   return <LucideIcon className={className} />;
 };
 
-export default function ToolGrid({ darkMode, onSelectTool, adsterraLink, adsterraActive }: ToolGridProps) {
+export default function ToolGrid({ darkMode, onSelectTool, adsterraLink, adsterraActive, lang }: ToolGridProps) {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<ToolCategory>('all');
 
   const categories: { label: string; value: ToolCategory }[] = [
-    { label: 'All Utilities', value: 'all' },
-    { label: 'PDF Utilities', value: 'pdf' },
-    { label: 'Image Tools', value: 'image' },
-    { label: 'Security & Lock', value: 'security' },
-    { label: 'AI Assisted', value: 'ai' }
+    { label: translations.cat_all[lang], value: 'all' },
+    { label: translations.cat_pdf[lang], value: 'pdf' },
+    { label: translations.cat_image[lang], value: 'image' },
+    { label: translations.cat_security[lang], value: 'security' },
+    { label: translations.cat_ai[lang], value: 'ai' }
   ];
 
   // Filter tools based on searches and category
   const filteredTools = TOOLS.filter(tool => {
-    const matchesSearch = tool.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          tool.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const name = toolTranslations[tool.id]?.name[lang] || tool.name;
+    const desc = toolTranslations[tool.id]?.description[lang] || tool.description;
+    const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                          desc.toLowerCase().includes(searchTerm.toLowerCase());
     const matchesCategory = selectedCategory === 'all' || tool.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
@@ -47,13 +51,13 @@ export default function ToolGrid({ darkMode, onSelectTool, adsterraLink, adsterr
           darkMode ? 'border-[#bfa15f]/40 text-[#bfa15f]' : 'border-[#8c1d1a]/40 text-[#8c1d1a]'
         }`}>
           <Sparkles className="w-3.5 h-3.5" />
-          <span>Local Typesetting Press Active</span>
+          <span>{translations.hero_badge[lang]}</span>
         </div>
         <h1 className="text-4xl sm:text-6xl font-serif font-light tracking-tight mb-6 leading-tight">
-          Typeset & Convert Documents <span className="italic font-normal">With Absolute Security</span>
+          {translations.hero_title[lang]} <span className="italic font-normal">{translations.hero_title_italic[lang]}</span>
         </h1>
         <p className={`text-sm sm:text-base font-serif max-w-2xl mx-auto leading-relaxed mb-6 ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
-          No system telemetry. No database transfers. No network leakage. Every stream-buffer operation executes strictly inside your browser's local sandbox memory.
+          {translations.hero_subtitle[lang]}
         </p>
 
         {adsterraActive && (
@@ -65,9 +69,9 @@ export default function ToolGrid({ darkMode, onSelectTool, adsterraLink, adsterr
                 <Icons.Sparkles className="w-4 h-4 animate-pulse" />
               </div>
               <div>
-                <h4 className="font-sans font-bold text-[10px] uppercase tracking-wider text-amber-500">Sponsored Link</h4>
+                <h4 className="font-sans font-bold text-[10px] uppercase tracking-wider text-amber-500">{translations.sponsor_badge[lang]}</h4>
                 <p className={`text-[11px] font-serif mt-0.5 leading-normal ${darkMode ? 'text-stone-300' : 'text-stone-700'}`}>
-                  Support our free sandbox converters by visiting our sponsor site today!
+                  {translations.sponsor_desc[lang]}
                 </p>
               </div>
             </div>
@@ -81,7 +85,7 @@ export default function ToolGrid({ darkMode, onSelectTool, adsterraLink, adsterr
                   : 'border-amber-500 bg-amber-500 hover:bg-amber-600 text-white'
               }`}
             >
-              Visit Sponsor
+              {translations.sponsor_btn[lang]}
             </a>
           </div>
         )}
@@ -122,7 +126,7 @@ export default function ToolGrid({ darkMode, onSelectTool, adsterraLink, adsterr
           <input
             type="text"
             id="tool-search"
-            placeholder="Search catalog index..."
+            placeholder={translations.search_placeholder[lang]}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className={`w-full pl-9 pr-12 py-2 text-xs border focus:outline-none focus:ring-0 transition-all font-mono rounded-none ${
@@ -136,7 +140,7 @@ export default function ToolGrid({ darkMode, onSelectTool, adsterraLink, adsterr
               onClick={() => setSearchTerm('')}
               className="absolute inset-y-0 right-0 pr-3 flex items-center text-[10px] font-sans uppercase tracking-wider font-bold text-stone-400 hover:text-stone-600"
             >
-              Clear
+              {lang === 'en' ? 'Clear' : 'Bersihkan'}
             </button>
           )}
         </div>
@@ -177,20 +181,23 @@ export default function ToolGrid({ darkMode, onSelectTool, adsterraLink, adsterr
                   >
                     <div>
                       <span className="absolute top-4 right-4 text-[9px] font-sans font-bold uppercase tracking-widest px-2 py-0.5 border rounded-none text-amber-500 border-amber-500/20">
-                        Sponsor
+                        {lang === 'en' ? 'Sponsor' : 'Sponsor'}
                       </span>
                       <div className="p-3 border rounded-none w-fit mb-6 transition-transform duration-300 text-amber-500 border-amber-500/20 bg-amber-500/5 group-hover:scale-105">
                         <Icons.ExternalLink className="w-4 h-4" />
                       </div>
                       <h3 className="font-serif font-medium text-xl tracking-tight mb-2.5 transition-colors duration-200 group-hover:underline text-amber-500 group-hover:text-amber-400">
-                        Visit Sponsored Link
+                        {lang === 'en' ? 'Visit Sponsored Link' : 'Kunjungi Link Sponsor'}
                       </h3>
                       <p className={`text-xs font-serif leading-relaxed mb-6 ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
-                        Unlock premium capabilities & support our digital typesetting studio. 100% secure direct sandbox redirection.
+                        {lang === 'en' 
+                          ? 'Unlock premium capabilities & support our digital typesetting studio. 100% secure direct sandbox redirection.' 
+                          : 'Buka kemampuan premium & dukung studio penataan huruf digital kami. Pengalihan sandbox langsung 100% aman.'
+                        }
                       </p>
                     </div>
                     <div className="flex items-center gap-1 text-[10px] font-sans font-bold uppercase tracking-widest mt-auto text-amber-500 group-hover:text-amber-400">
-                      <span>Redirect Sponsor</span>
+                      <span>{lang === 'en' ? 'Redirect Sponsor' : 'Buka Sponsor'}</span>
                       <Icons.ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform duration-200" />
                     </div>
                   </a>
@@ -209,7 +216,7 @@ export default function ToolGrid({ darkMode, onSelectTool, adsterraLink, adsterr
                   {/* Badge top-right */}
                   {tool.badge && (
                     <span className={`absolute top-4 right-4 text-[9px] font-sans font-bold uppercase tracking-widest px-2 py-0.5 border rounded-none ${badgeClass}`}>
-                      {tool.badge}
+                      {tool.badge === 'New' && lang === 'id' ? 'Baru' : tool.badge}
                     </span>
                   )}
 
@@ -222,17 +229,17 @@ export default function ToolGrid({ darkMode, onSelectTool, adsterraLink, adsterr
                   <h3 className={`font-serif font-medium text-xl tracking-tight mb-2.5 transition-colors duration-200 group-hover:underline ${
                     darkMode ? 'group-hover:text-[#bfa15f]' : 'group-hover:text-[#8c1d1a]'
                   }`}>
-                    {tool.name}
+                    {toolTranslations[tool.id]?.name[lang] || tool.name}
                   </h3>
                   <p className={`text-xs font-serif leading-relaxed mb-6 ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
-                    {tool.description}
+                    {toolTranslations[tool.id]?.description[lang] || tool.description}
                   </p>
 
                   {/* Action */}
                   <div className={`flex items-center gap-1 text-[10px] font-sans font-bold uppercase tracking-widest mt-auto ${
                     darkMode ? 'text-[#bfa15f]' : 'text-[#8c1d1a]'
                   }`}>
-                    <span>Compile Stream</span>
+                    <span>{lang === 'en' ? 'Compile Stream' : 'Mulai Proses'}</span>
                     <Icons.ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1.5 transition-transform duration-200" />
                   </div>
 

@@ -16,6 +16,7 @@ import AIFixTool from './components/AIFixTool';
 import SaaSAdminDashboard from './components/SaaSAdminDashboard';
 import { SaaSDB } from './lib/saasDb';
 import { Sparkles, Layers, ShieldCheck, Mail, GitBranch, Terminal, Lock } from 'lucide-react';
+import { Language, translations } from './lib/translations';
 
 export default function App() {
   const [currentView, setView] = useState<string>('dashboard');
@@ -30,6 +31,16 @@ export default function App() {
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [userPlan, setUserPlan] = useState<string>('starter');
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
+
+  // Language state
+  const [lang, setLang] = useState<Language>(() => {
+    return (localStorage.getItem('utildoc_lang') as Language) || 'id';
+  });
+
+  const changeLang = (l: Language) => {
+    setLang(l);
+    localStorage.setItem('utildoc_lang', l);
+  };
 
   // Synchronize session state globally
   useEffect(() => {
@@ -147,6 +158,8 @@ export default function App() {
         setUserPlan={setUserPlan}
         showLoginModal={showLoginModal}
         setShowLoginModal={setShowLoginModal}
+        lang={lang}
+        changeLang={changeLang}
       />
 
       {/* Main Content Stage */}
@@ -161,10 +174,10 @@ export default function App() {
             <h2 className={`text-3xl font-serif font-medium mb-3 italic tracking-tight ${
               darkMode ? 'text-white' : 'text-stone-900'
             }`}>
-              Authentication Required
+              {translations.lock_title[lang]}
             </h2>
             <p className={`text-xs font-serif leading-relaxed mb-8 max-w-sm mx-auto ${darkMode ? 'text-stone-400' : 'text-stone-600'}`}>
-              Untuk menggunakan layanan OCR Scanner dan AI Text Fix yang didukung oleh API server Gemini, silakan masuk ke akun UtilDoc Anda terlebih dahulu.
+              {translations.lock_subtitle[lang]}
             </p>
             
             <div className="flex justify-center gap-4">
@@ -176,7 +189,7 @@ export default function App() {
                     : 'bg-[#1c1c1a] text-[#FAF9F5] hover:bg-stone-800'
                 }`}
               >
-                Sign In / Register
+                {translations.lock_signin[lang]}
               </button>
               <button
                 onClick={() => setView('dashboard')}
@@ -186,7 +199,7 @@ export default function App() {
                     : 'border-[#d8d4ca] text-stone-700 hover:bg-[#eae7e0]/20'
                 }`}
               >
-                Kembali ke Katalog
+                {translations.lock_back[lang]}
               </button>
             </div>
           </div>
@@ -198,6 +211,7 @@ export default function App() {
                 onSelectTool={(toolId) => setView(toolId)} 
                 adsterraLink={adsterraLink}
                 adsterraActive={adsterraActive}
+                lang={lang}
               />
             )}
             {currentView === 'merge-pdf' && (

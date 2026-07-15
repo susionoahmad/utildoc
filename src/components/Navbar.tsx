@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Sun, Moon, Layers, ShieldCheck, HelpCircle, LogIn, Sparkles, LogOut, CheckCircle2, Server, Key } from 'lucide-react';
 import { SaaSDB } from '../lib/saasDb';
+import { Language, translations } from '../lib/translations';
 
 interface NavbarProps {
   currentView: string;
@@ -19,12 +20,14 @@ interface NavbarProps {
   setUserPlan: (plan: string) => void;
   showLoginModal: boolean;
   setShowLoginModal: (show: boolean) => void;
+  lang: Language;
+  changeLang: (l: Language) => void;
 }
 
 export default function Navbar({ 
   currentView, setView, darkMode, setDarkMode, adsterraLink, adsterraActive,
   isLoggedIn, setIsLoggedIn, email, setEmail, isAdmin, setIsAdmin, userPlan, setUserPlan,
-  showLoginModal, setShowLoginModal
+  showLoginModal, setShowLoginModal, lang, changeLang
 }: NavbarProps) {
   const [password, setPassword] = useState('');
   const [loginError, setLoginError] = useState('');
@@ -256,7 +259,7 @@ export default function Navbar({
                   }`}
                 >
                   <Server className="w-3.5 h-3.5 text-[#bfa15f] dark:text-[#bfa15f] animate-pulse" />
-                  SaaS Admin
+                  {translations.nav_admin[lang]}
                 </button>
               )}
             </nav>
@@ -277,13 +280,27 @@ export default function Navbar({
                 {darkMode ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
               </button>
 
+              {/* Language Switcher */}
+              <button
+                id="lang-toggle"
+                onClick={() => changeLang(lang === 'en' ? 'id' : 'en')}
+                className={`px-2 py-1.5 transition-all duration-200 border rounded-none text-[10px] font-sans font-extrabold uppercase tracking-wider ${
+                  darkMode 
+                    ? 'border-[#2c2c2a] bg-[#181817] hover:bg-[#20201f] text-[#bfa15f]' 
+                    : 'border-[#e6e2d8] bg-[#FAF9F5] hover:bg-[#f1efe8] text-[#8c1d1a]'
+                }`}
+                title={lang === 'en' ? 'Ubah ke Bahasa Indonesia' : 'Switch to English'}
+              >
+                {lang === 'en' ? 'EN' : 'ID'}
+              </button>
+
               {/* Login Button State */}
               {isLoggedIn ? (
                 <div className="flex items-center gap-3">
                   <div className={`hidden sm:flex flex-col items-end text-xs font-serif`}>
                     <span className="font-bold">{email.split('@')[0]}</span>
                     <span className="text-[9px] font-sans tracking-wide font-bold uppercase flex items-center gap-1 text-emerald-400">
-                      <span className="w-1.5 h-1.5 rounded-full animate-pulse bg-emerald-400"></span> Active Member
+                      <span className="w-1.5 h-1.5 rounded-full animate-pulse bg-emerald-400"></span> {translations.nav_active[lang]}
                     </span>
                   </div>
                   <button
@@ -297,10 +314,10 @@ export default function Navbar({
                         ? 'border-[#2c2c2a] bg-[#181817] hover:bg-[#20201f] text-stone-300'
                         : 'border-[#e6e2d8] bg-[#FAF9F5] hover:bg-stone-50 hover:border-stone-300 text-stone-600'
                     }`}
-                    title="Change Password"
+                    title={translations.nav_changepass[lang]}
                   >
                     <Key className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline pr-0.5">Ganti Password</span>
+                    <span className="hidden sm:inline pr-0.5">{translations.nav_changepass[lang]}</span>
                   </button>
                   <button
                     id="logout-btn"
@@ -310,10 +327,10 @@ export default function Navbar({
                         ? 'border-[#2c2c2a] bg-[#181817] hover:bg-red-900/10 hover:border-red-500/20 text-stone-300'
                         : 'border-[#e6e2d8] bg-[#FAF9F5] hover:bg-red-50 hover:border-red-200 text-stone-600'
                     }`}
-                    title="Sign Out"
+                    title={translations.nav_signout[lang]}
                   >
                     <LogOut className="w-3.5 h-3.5" />
-                    <span className="hidden sm:inline pr-0.5">Sign Out</span>
+                    <span className="hidden sm:inline pr-0.5">{translations.nav_signout[lang]}</span>
                   </button>
                 </div>
               ) : (
@@ -327,7 +344,7 @@ export default function Navbar({
                   }`}
                 >
                   <LogIn className="w-3.5 h-3.5" />
-                  Sign In
+                  {translations.nav_signin[lang]}
                 </button>
               )}
             </div>
