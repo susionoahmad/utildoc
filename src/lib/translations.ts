@@ -95,7 +95,59 @@ export const translations = {
   kb_image_to_pdf_desc: { en: 'Assemble image files into single A4 or Letter publication.', id: 'Gabungkan file gambar menjadi dokumen PDF tunggal A4 atau Letter.' },
   kb_ai_desc: { en: 'Compile AI scan / correction rules, or download text file.', id: 'Jalankan pemindaian AI / aturan koreksi, atau unduh file teks.' },
   kb_metadata_desc: { en: 'Hydrate Tax Review sample, or export report schema as JSON.', id: 'Muat sampel Tinjauan Pajak, atau ekspor skema laporan sebagai JSON.' },
-  kb_studio_footer: { en: 'UtilDoc Studio • Interactive Typography Core', id: 'UtilDoc Studio • Pemrosesan Dokumen Interaktif' }
+  kb_studio_footer: { en: 'UtilDoc Studio • Interactive Typography Core', id: 'UtilDoc Studio • Pemrosesan Dokumen Interaktif' },
+
+  // Security Protocol Modal
+  sp_title: { en: 'Security Protocol', id: 'Protokol Keamanan' },
+  sp_subtitle: { en: 'UtilDoc Local Sandboxed Execution Standards', id: 'Standar Eksekusi Sandbox Lokal UtilDoc' },
+  sp_p1: { 
+    en: 'All core PDF and image compiler functions run 100% inside your browser\'s virtual machine. We do not use remote servers to serialize or stream document buffers.', 
+    id: 'Semua fungsi kompilasi inti PDF dan gambar berjalan 100% di dalam mesin virtual browser Anda. Kami tidak menggunakan server jarak jauh untuk menserialisasi atau mengalirkan buffer dokumen.' 
+  },
+  sp_p2: { 
+    en: 'For AI services (OCR Scan & Smart Fix), files are processed securely through temporary API gateway channels. Files are never stored on disk and are destroyed immediately post-execution.', 
+    id: 'Untuk layanan kecerdasan buatan (Pindai OCR & Perbaikan Cerdas AI), file diproses secara aman melalui saluran gateway API sementara. File tidak pernah disimpan di disk dan segera dimusnahkan setelah eksekusi.' 
+  },
+  sp_p3: { 
+    en: 'Client-side sandbox boundaries prevent cross-site scripting (XSS) and keep all telemetry metrics disabled.', 
+    id: 'Batasan sandbox di sisi klien mencegah cross-site scripting (XSS) dan menonaktifkan semua metrik telemetri.' 
+  },
+
+  // Security Charter Modal
+  sc_title: { en: 'Security Charter', id: 'Piagam Keamanan' },
+  sc_subtitle: { en: 'Our Commitment to Absolute Privacy', id: 'Komitmen Kami untuk Privasi Mutlak' },
+  sc_p1: { 
+    en: 'Zero Data Custody: We have no central storage databases for user documents. Your records are yours alone.', 
+    id: 'Tanpa Penitipan Data: Kami tidak memiliki database penyimpanan pusat untuk dokumen pengguna. Dokumen Anda sepenuhnya milik Anda sendiri.' 
+  },
+  sc_p2: { 
+    en: 'Verifiable Operations: The processing environment is transparent and can be inspected locally using standard browser development tools.', 
+    id: 'Operasi yang Dapat Diverifikasi: Lingkungan pemrosesan transparan dan dapat diperiksa secara lokal menggunakan alat pengembang browser standar.' 
+  },
+  sc_p3: { 
+    en: 'Cryptographic Hardening: Protected documents use industry-grade AES-256 encryption. We support fully local password salting.', 
+    id: 'Pengerasan Kriptografis: Dokumen yang dilindungi menggunakan enkripsi standar industri AES-256. Kami mendukung salting kata sandi lokal sepenuhnya.' 
+  },
+
+  // Changelog Modal
+  cl_title: { en: 'Release Changelog', id: 'Catatan Rilis' },
+  cl_subtitle: { en: 'UtilDoc v4.2-Editorial Version History', id: 'Riwayat Versi UtilDoc v4.2-Editorial' },
+  cl_i1: { 
+    en: 'Localization Suite: Complete English (EN) and Indonesian (ID) bilingual system toggles.', 
+    id: 'Suite Lokalisasi: Dukungan penuh dwi-bahasa Inggris (EN) dan Indonesia (ID).' 
+  },
+  cl_i2: { 
+    en: 'Admin SaaS Dashboard: Real-time user database logging, activity metrics, and top tools usage ranking.', 
+    id: 'Dasbor Admin SaaS: Logging database pengguna waktu nyata, metrik aktivitas, dan peringkat alat terpopuler.' 
+  },
+  cl_i3: { 
+    en: 'Adsterra Support: Safe ad gateway integrations to keep sandbox tools free for all guest users.', 
+    id: 'Dukungan Adsterra: Integrasi gateway iklan yang aman untuk menjaga alat sandbox gratis bagi semua tamu.' 
+  },
+  cl_i4: { 
+    en: 'Interactive Shortcuts: Seamless keyboard triggers for all main compilation pipelines.', 
+    id: 'Pintasan Interaktif: Pemicu keyboard cepat untuk seluruh jalur kompilasi utama.' 
+  }
 };
 
 export const toolTranslations: Record<string, { name: Record<Language, string>; description: Record<Language, string> }> = {

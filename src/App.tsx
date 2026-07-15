@@ -31,6 +31,9 @@ export default function App() {
   const [isAdmin, setIsAdmin] = useState<boolean>(false);
   const [userPlan, setUserPlan] = useState<string>('starter');
   const [showLoginModal, setShowLoginModal] = useState<boolean>(false);
+  const [showSecurityProtocol, setShowSecurityProtocol] = useState<boolean>(false);
+  const [showSecurityCharter, setShowSecurityCharter] = useState<boolean>(false);
+  const [showChangelog, setShowChangelog] = useState<boolean>(false);
 
   // Language state
   const [lang, setLang] = useState<Language>(() => {
@@ -455,13 +458,13 @@ export default function App() {
           <div className="mt-8 pt-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] font-serif text-stone-500">
             <p>© {new Date().getFullYear()} UtilDoc Studio. {translations.footer_copyright[lang]}</p>
             <div className="flex items-center gap-4 font-sans text-[10px] tracking-wider uppercase">
-              <a href="#" className="hover:underline">{translations.footer_protocol[lang]}</a>
+              <button onClick={() => setShowSecurityProtocol(true)} className="hover:underline uppercase tracking-wider text-[10px] font-sans">{translations.footer_protocol[lang]}</button>
               <span>•</span>
-              <a href="#" className="hover:underline">{translations.footer_charter[lang]}</a>
+              <button onClick={() => setShowSecurityCharter(true)} className="hover:underline uppercase tracking-wider text-[10px] font-sans">{translations.footer_charter[lang]}</button>
               <span>•</span>
-              <a href="#" className="hover:underline flex items-center gap-1">
+              <button onClick={() => setShowChangelog(true)} className="hover:underline uppercase tracking-wider text-[10px] font-sans flex items-center gap-1">
                 <GitBranch className="w-3 h-3" /> v4.2-Editorial
-              </a>
+              </button>
             </div>
           </div>
 
@@ -567,6 +570,135 @@ export default function App() {
             <div className={`pt-4 border-t border-dashed text-[10px] font-mono text-center flex items-center justify-center gap-1.5 ${darkMode ? 'border-stone-800 text-stone-500' : 'border-[#e6e2d8] text-stone-400'}`}>
               <Terminal className="w-3.5 h-3.5" />
               <span>{translations.kb_studio_footer[lang]}</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Security Protocol Modal Overlay */}
+      {showSecurityProtocol && (
+        <div 
+          className="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in"
+          onClick={() => setShowSecurityProtocol(false)}
+        >
+          <div 
+            className={`w-full max-w-lg p-8 border rounded-none shadow-2xl space-y-6 ${
+              darkMode ? 'bg-[#181817] border-[#2c2c2a] text-[#eae7e0]' : 'bg-[#FAF9F5] border-[#eae6db] text-[#1c1c1a]'
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-dashed pb-4 border-[#e6e2d8] dark:border-[#2a2a29]">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className={`w-4 h-4 ${darkMode ? 'text-[#bfa15f]' : 'text-[#8c1d1a]'}`} />
+                <h3 className="text-sm font-sans font-bold uppercase tracking-wider">{translations.sp_title[lang]}</h3>
+              </div>
+              <button 
+                onClick={() => setShowSecurityProtocol(false)}
+                className="text-xs font-mono hover:underline uppercase tracking-wider opacity-60"
+              >
+                {translations.kb_close_panel[lang]}
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs font-serif leading-relaxed">
+              <p className="font-bold text-stone-400 uppercase tracking-widest text-[9px] font-sans">
+                {translations.sp_subtitle[lang]}
+              </p>
+              <p>{translations.sp_p1[lang]}</p>
+              <p>{translations.sp_p2[lang]}</p>
+              <p>{translations.sp_p3[lang]}</p>
+            </div>
+
+            <div className={`pt-4 border-t border-dashed text-[10px] font-mono text-center flex items-center justify-center gap-1.5 ${darkMode ? 'border-stone-800 text-stone-500' : 'border-[#e6e2d8] text-stone-400'}`}>
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>UtilDoc Studio • Secure Sandbox Protocol</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Security Charter Modal Overlay */}
+      {showSecurityCharter && (
+        <div 
+          className="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in"
+          onClick={() => setShowSecurityCharter(false)}
+        >
+          <div 
+            className={`w-full max-w-lg p-8 border rounded-none shadow-2xl space-y-6 ${
+              darkMode ? 'bg-[#181817] border-[#2c2c2a] text-[#eae7e0]' : 'bg-[#FAF9F5] border-[#eae6db] text-[#1c1c1a]'
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-dashed pb-4 border-[#e6e2d8] dark:border-[#2a2a29]">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className={`w-4 h-4 ${darkMode ? 'text-[#bfa15f]' : 'text-[#8c1d1a]'}`} />
+                <h3 className="text-sm font-sans font-bold uppercase tracking-wider">{translations.sc_title[lang]}</h3>
+              </div>
+              <button 
+                onClick={() => setShowSecurityCharter(false)}
+                className="text-xs font-mono hover:underline uppercase tracking-wider opacity-60"
+              >
+                {translations.kb_close_panel[lang]}
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs font-serif leading-relaxed">
+              <p className="font-bold text-stone-400 uppercase tracking-widest text-[9px] font-sans">
+                {translations.sc_subtitle[lang]}
+              </p>
+              <p>{translations.sc_p1[lang]}</p>
+              <p>{translations.sc_p2[lang]}</p>
+              <p>{translations.sc_p3[lang]}</p>
+            </div>
+
+            <div className={`pt-4 border-t border-dashed text-[10px] font-mono text-center flex items-center justify-center gap-1.5 ${darkMode ? 'border-stone-800 text-stone-500' : 'border-[#e6e2d8] text-stone-400'}`}>
+              <ShieldCheck className="w-3.5 h-3.5" />
+              <span>UtilDoc Studio • Privacy First Design</span>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Changelog Modal Overlay */}
+      {showChangelog && (
+        <div 
+          className="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in"
+          onClick={() => setShowChangelog(false)}
+        >
+          <div 
+            className={`w-full max-w-lg p-8 border rounded-none shadow-2xl space-y-6 ${
+              darkMode ? 'bg-[#181817] border-[#2c2c2a] text-[#eae7e0]' : 'bg-[#FAF9F5] border-[#eae6db] text-[#1c1c1a]'
+            }`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between border-b border-dashed pb-4 border-[#e6e2d8] dark:border-[#2a2a29]">
+              <div className="flex items-center gap-2">
+                <GitBranch className={`w-4 h-4 ${darkMode ? 'text-[#bfa15f]' : 'text-[#8c1d1a]'}`} />
+                <h3 className="text-sm font-sans font-bold uppercase tracking-wider">{translations.cl_title[lang]}</h3>
+              </div>
+              <button 
+                onClick={() => setShowChangelog(false)}
+                className="text-xs font-mono hover:underline uppercase tracking-wider opacity-60"
+              >
+                {translations.kb_close_panel[lang]}
+              </button>
+            </div>
+
+            <div className="space-y-4 text-xs font-serif leading-relaxed">
+              <p className="font-bold text-stone-400 uppercase tracking-widest text-[9px] font-sans">
+                {translations.cl_subtitle[lang]}
+              </p>
+              <ul className="space-y-3 list-disc list-inside">
+                <li>{translations.cl_i1[lang]}</li>
+                <li>{translations.cl_i2[lang]}</li>
+                <li>{translations.cl_i3[lang]}</li>
+                <li>{translations.cl_i4[lang]}</li>
+              </ul>
+            </div>
+
+            <div className={`pt-4 border-t border-dashed text-[10px] font-mono text-center flex items-center justify-center gap-1.5 ${darkMode ? 'border-stone-800 text-stone-500' : 'border-[#e6e2d8] text-stone-400'}`}>
+              <GitBranch className="w-3.5 h-3.5" />
+              <span>UtilDoc Studio • Production Release Channel</span>
             </div>
           </div>
         </div>
