@@ -281,7 +281,7 @@ export async function getTransactions() {
   const res = await pool.query('SELECT id, user_email as "userEmail", plan, amount, gateway, status, created_at as "date" FROM transactions ORDER BY created_at DESC, id DESC');
   return res.rows.map(r => {
     const d = r.date instanceof Date ? r.date : new Date(r.date);
-    const dateFormatted = `${d.toISOString().slice(0, 10)} ${d.toTimeString().slice(0, 5)}`;
+    const dateFormatted = d.toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).slice(0, 16);
     return {
       ...r,
       amount: parseFloat(r.amount),
@@ -300,7 +300,7 @@ export async function addTransaction(tx: { userEmail: string; plan: string; amou
     [id, tx.userEmail, tx.plan, tx.amount, tx.gateway, tx.status, now]
   );
 
-  const dateFormatted = `${now.toISOString().slice(0, 10)} ${now.toTimeString().slice(0, 5)}`;
+  const dateFormatted = now.toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).slice(0, 16);
 
   if (tx.status === 'completed') {
     const user = await getUserByEmail(tx.userEmail);
@@ -406,7 +406,7 @@ export async function getActivityLogs() {
   const res = await pool.query('SELECT id, user_email as "userEmail", activity_type as "activityType", description, created_at as "date" FROM activity_logs ORDER BY created_at DESC LIMIT 100');
   return res.rows.map(r => {
     const d = r.date instanceof Date ? r.date : new Date(r.date);
-    const dateFormatted = `${d.toISOString().slice(0, 10)} ${d.toTimeString().slice(0, 5)}`;
+    const dateFormatted = d.toLocaleString('sv-SE', { timeZone: 'Asia/Jakarta' }).slice(0, 16);
     return {
       id: r.id,
       userEmail: r.userEmail,
