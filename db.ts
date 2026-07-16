@@ -364,10 +364,10 @@ export async function getMetrics() {
     .reduce((sum, tx) => sum + tx.amount, 0);
 
   // Real document processed calculation:
-  // 1. Registered user actions that are tool activities (i.e. not AUTH_LOGIN, AUTH_REGISTER, AUTH_LOGOUT, etc.)
+  // 1. Registered user actions that are tool activities
   const toolActivitiesRes = await pool.query(`
     SELECT COUNT(*) FROM activity_logs 
-    WHERE activity_type NOT IN ('AUTH_LOGIN', 'AUTH_REGISTER', 'AUTH_LOGOUT', 'AUTH_SETTINGS', 'AUTH_DELETE_USER')
+    WHERE activity_type IN ('MERGE_PDF', 'SPLIT_PDF', 'COMPRESS_PDF', 'VIEW_METADATA', 'ROTATE_PDF', 'WATERMARK_PDF', 'ENCRYPT_PDF', 'PDF_TO_IMAGE', 'IMAGE_TO_PDF', 'IMAGE_CONVERTER', 'OCR_SCAN', 'AI_FIX')
   `);
   const registeredToolCount = parseInt(toolActivitiesRes.rows[0].count, 10);
 

@@ -7,7 +7,7 @@ import {
 import { PDFDocument } from 'pdf-lib';
 import { DocumentFile } from '../types';
 import { EditorialProgressBar } from './EditorialProgressBar';
-import { Language, translations } from '../lib/translations';
+import { Language, translations, toolTranslations } from '../lib/translations';
 
 interface OCRScanToolProps {
   darkMode: boolean;

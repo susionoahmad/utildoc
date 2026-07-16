@@ -223,7 +223,6 @@ export default function App() {
                 setView={setView} 
                 adsterraLink={adsterraLink}
                 adsterraActive={adsterraActive}
-                isLoggedIn={isLoggedIn}
                 lang={lang}
               />
             )}
@@ -233,7 +232,6 @@ export default function App() {
                 setView={setView} 
                 adsterraLink={adsterraLink}
                 adsterraActive={adsterraActive}
-                isLoggedIn={isLoggedIn}
                 lang={lang}
               />
             )}
@@ -243,7 +241,6 @@ export default function App() {
                 setView={setView} 
                 adsterraLink={adsterraLink}
                 adsterraActive={adsterraActive}
-                isLoggedIn={isLoggedIn}
                 lang={lang}
               />
             )}
@@ -251,7 +248,6 @@ export default function App() {
               <PDFMetadataTool 
                 darkMode={darkMode} 
                 setView={setView} 
-                isLoggedIn={isLoggedIn}
                 lang={lang}
               />
             )}
@@ -259,7 +255,6 @@ export default function App() {
               <RotatePDFTool 
                 darkMode={darkMode} 
                 setView={setView} 
-                isLoggedIn={isLoggedIn}
                 lang={lang}
               />
             )}
@@ -267,7 +262,6 @@ export default function App() {
               <WatermarkPDFTool 
                 darkMode={darkMode} 
                 setView={setView} 
-                isLoggedIn={isLoggedIn}
                 lang={lang}
               />
             )}
@@ -275,7 +269,6 @@ export default function App() {
               <PasswordProtectPDFTool 
                 darkMode={darkMode} 
                 setView={setView} 
-                isLoggedIn={isLoggedIn}
                 lang={lang}
               />
             )}
@@ -283,7 +276,6 @@ export default function App() {
               <PDFToImageTool 
                 darkMode={darkMode} 
                 setView={setView} 
-                isLoggedIn={isLoggedIn}
                 lang={lang}
               />
             )}
@@ -291,7 +283,6 @@ export default function App() {
               <ImageToPDFTool 
                 darkMode={darkMode} 
                 setView={setView} 
-                isLoggedIn={isLoggedIn}
                 lang={lang}
               />
             )}
@@ -299,7 +290,6 @@ export default function App() {
               <ImageConverterTool 
                 darkMode={darkMode} 
                 setView={setView} 
-                isLoggedIn={isLoggedIn}
                 lang={lang}
               />
             )}
@@ -307,7 +297,6 @@ export default function App() {
               <OCRScanTool 
                 darkMode={darkMode} 
                 setView={setView} 
-                isLoggedIn={isLoggedIn}
                 lang={lang}
               />
             )}
@@ -315,7 +304,6 @@ export default function App() {
               <AIFixTool 
                 darkMode={darkMode} 
                 setView={setView} 
-                isLoggedIn={isLoggedIn}
                 lang={lang}
               />
             )}

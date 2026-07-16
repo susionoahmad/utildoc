@@ -188,7 +188,7 @@ export class SaaSDB {
     return data.metrics;
   }
 
-  static async getAdminData(): Promise<{ users: SaaSUser[]; transactions: SaasTransaction[]; settings: SaasSettings; metrics: SaaSMetrics; activityLogs?: any[]; toolRanking?: any[] }> {
+  static async getAdminData(): Promise<{ users: SaaSUser[]; transactions: SaasTransaction[]; settings: SaasSettings; metrics: SaaSMetrics; activityLogs?: any[]; toolRanking?: any[]; toolRankings?: any[] }> {
     const res = await fetch('/api/admin/data', { headers: this.getHeaders() });
     if (!res.ok) throw new Error('Failed to fetch admin dashboard payload');
     return res.json();
