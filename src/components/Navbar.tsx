@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Sun, Moon, Layers, ShieldCheck, HelpCircle, LogIn, Sparkles, LogOut, CheckCircle2, Server, Key } from 'lucide-react';
+import { Sun, Moon, Layers, ShieldCheck, HelpCircle, LogIn, Sparkles, LogOut, CheckCircle2, Server, Key, Menu, X } from 'lucide-react';
 import { SaaSDB } from '../lib/saasDb';
 import { Language, translations } from '../lib/translations';
 
@@ -30,6 +30,7 @@ export default function Navbar({
   showLoginModal, setShowLoginModal, lang, changeLang
 }: NavbarProps) {
   const [password, setPassword] = useState('');
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [loginError, setLoginError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [isSignUp, setIsSignUp] = useState(false);
@@ -347,9 +348,95 @@ export default function Navbar({
                   {translations.nav_signin[lang]}
                 </button>
               )}
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                className={`p-2 transition-all duration-200 border rounded-none md:hidden ${
+                  darkMode 
+                    ? 'border-[#2c2c2a] bg-[#181817] hover:bg-[#20201f] text-stone-300' 
+                    : 'border-[#e6e2d8] bg-[#FAF9F5] hover:bg-[#f1efe8] text-stone-600'
+                }`}
+                title={isMobileMenuOpen ? 'Close Menu' : 'Open Menu'}
+              >
+                {isMobileMenuOpen ? <X className="w-3.5 h-3.5" /> : <Menu className="w-3.5 h-3.5" />}
+              </button>
             </div>
 
           </div>
+
+          {/* Mobile Navigation Panel */}
+          {isMobileMenuOpen && (
+            <div className={`md:hidden border-t border-dashed py-4 space-y-2 border-[#e6e2d8] dark:border-[#2a2a29] transition-all duration-200`}>
+              <button
+                onClick={() => {
+                  setView('dashboard');
+                  setIsMobileMenuOpen(false);
+                }}
+                className={`w-full text-left px-3 py-2 font-sans font-bold uppercase tracking-wider text-[11px] transition-all duration-150 ${
+                  currentView === 'dashboard'
+                    ? darkMode ? 'text-[#bfa15f] bg-[#1c1c1a]' : 'text-[#8c1d1a] bg-[#eae7e0]/20'
+                    : darkMode ? 'text-stone-400 hover:text-stone-100' : 'text-stone-600 hover:text-stone-900'
+                }`}
+              >
+                {translations.nav_all[lang]}
+              </button>
+              <button
+                onClick={() => {
+                  setView('merge-pdf');
+                  setIsMobileMenuOpen(false);
+                }}
+                className={`w-full text-left px-3 py-2 font-sans font-bold uppercase tracking-wider text-[11px] transition-all duration-150 ${
+                  currentView === 'merge-pdf'
+                    ? darkMode ? 'text-[#bfa15f] bg-[#1c1c1a]' : 'text-[#8c1d1a] bg-[#eae7e0]/20'
+                    : darkMode ? 'text-stone-400 hover:text-stone-100' : 'text-stone-600 hover:text-stone-900'
+                }`}
+              >
+                {translations.nav_merge[lang]}
+              </button>
+              <button
+                onClick={() => {
+                  setView('encrypt-pdf');
+                  setIsMobileMenuOpen(false);
+                }}
+                className={`w-full text-left px-3 py-2 font-sans font-bold uppercase tracking-wider text-[11px] transition-all duration-150 ${
+                  currentView === 'encrypt-pdf'
+                    ? darkMode ? 'text-[#bfa15f] bg-[#1c1c1a]' : 'text-[#8c1d1a] bg-[#eae7e0]/20'
+                    : darkMode ? 'text-stone-400 hover:text-stone-100' : 'text-stone-600 hover:text-stone-900'
+                }`}
+              >
+                {translations.nav_secure[lang]}
+              </button>
+              {adsterraActive && (
+                <a
+                  href={adsterraLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="w-full text-left px-3 py-2 font-sans font-bold uppercase tracking-wider text-[11px] text-[#bfa15f] hover:text-[#bfa15f]/80 dark:text-[#bfa15f] dark:hover:text-[#bfa15f]/80 transition-all duration-150 flex items-center gap-1"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-[#bfa15f] dark:text-[#bfa15f] animate-pulse" />
+                  {translations.nav_sponsor[lang]}
+                </a>
+              )}
+              {isLoggedIn && isAdmin && (
+                <button
+                  onClick={() => {
+                    setView('saas-admin');
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`w-full text-left px-3 py-2 font-sans font-bold uppercase tracking-wider text-[11px] transition-all duration-150 flex items-center gap-1.5 ${
+                    currentView === 'saas-admin'
+                      ? darkMode ? 'text-[#bfa15f] bg-[#1c1c1a]' : 'text-[#8c1d1a] bg-[#eae7e0]/20'
+                      : darkMode ? 'text-stone-400 hover:text-[#bfa15f]' : 'text-stone-600 hover:text-[#8c1d1a]'
+                  }`}
+                >
+                  <Server className="w-3.5 h-3.5 text-[#bfa15f] dark:text-[#bfa15f] animate-pulse" />
+                  {translations.nav_admin[lang]}
+                </button>
+              )}
+            </div>
+          )}
         </div>
       </header>
 
