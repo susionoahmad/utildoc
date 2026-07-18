@@ -249,6 +249,8 @@ export default function App() {
                 darkMode={darkMode} 
                 setView={setView} 
                 lang={lang}
+                adsterraLink={adsterraLink}
+                adsterraActive={adsterraActive}
               />
             )}
             {currentView === 'rotate-pdf' && (
@@ -256,6 +258,8 @@ export default function App() {
                 darkMode={darkMode} 
                 setView={setView} 
                 lang={lang}
+                adsterraLink={adsterraLink}
+                adsterraActive={adsterraActive}
               />
             )}
             {currentView === 'watermark-pdf' && (
@@ -263,6 +267,8 @@ export default function App() {
                 darkMode={darkMode} 
                 setView={setView} 
                 lang={lang}
+                adsterraLink={adsterraLink}
+                adsterraActive={adsterraActive}
               />
             )}
             {currentView === 'encrypt-pdf' && (
@@ -270,6 +276,8 @@ export default function App() {
                 darkMode={darkMode} 
                 setView={setView} 
                 lang={lang}
+                adsterraLink={adsterraLink}
+                adsterraActive={adsterraActive}
               />
             )}
             {currentView === 'pdf-to-image' && (
@@ -277,6 +285,8 @@ export default function App() {
                 darkMode={darkMode} 
                 setView={setView} 
                 lang={lang}
+                adsterraLink={adsterraLink}
+                adsterraActive={adsterraActive}
               />
             )}
             {currentView === 'image-to-pdf' && (
@@ -284,6 +294,8 @@ export default function App() {
                 darkMode={darkMode} 
                 setView={setView} 
                 lang={lang}
+                adsterraLink={adsterraLink}
+                adsterraActive={adsterraActive}
               />
             )}
             {currentView === 'image-converter' && (
@@ -291,6 +303,8 @@ export default function App() {
                 darkMode={darkMode} 
                 setView={setView} 
                 lang={lang}
+                adsterraLink={adsterraLink}
+                adsterraActive={adsterraActive}
               />
             )}
             {currentView === 'ocr-scan' && (
@@ -298,6 +312,8 @@ export default function App() {
                 darkMode={darkMode} 
                 setView={setView} 
                 lang={lang}
+                adsterraLink={adsterraLink}
+                adsterraActive={adsterraActive}
               />
             )}
             {currentView === 'ai-fix' && (
@@ -305,6 +321,8 @@ export default function App() {
                 darkMode={darkMode} 
                 setView={setView} 
                 lang={lang}
+                adsterraLink={adsterraLink}
+                adsterraActive={adsterraActive}
               />
             )}
             {currentView === 'saas-admin' && (

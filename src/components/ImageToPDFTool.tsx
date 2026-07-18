@@ -25,9 +25,11 @@ interface ImageToPDFToolProps {
   darkMode: boolean;
   setView: (view: string) => void;
   lang?: Language;
+  adsterraLink: string;
+  adsterraActive: boolean;
 }
 
-export default function ImageToPDFTool({ darkMode, setView, lang }: ImageToPDFToolProps) {
+export default function ImageToPDFTool({ darkMode, setView, lang, adsterraLink, adsterraActive }: ImageToPDFToolProps) {
   const activeLang = lang || 'id';
   const [images, setImages] = useState<ImageItem[]>([]);
   const [pageSize, setPageSize] = useState<'a4' | 'letter' | 'original'>('a4');
@@ -318,6 +320,10 @@ export default function ImageToPDFTool({ darkMode, setView, lang }: ImageToPDFTo
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    
+    if (adsterraActive && adsterraLink) {
+      window.open(adsterraLink, '_blank', 'noopener,noreferrer');
+    }
   };
 
   // Keyboard shortcut listener

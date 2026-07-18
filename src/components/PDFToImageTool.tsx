@@ -115,9 +115,11 @@ interface PDFToImageToolProps {
   darkMode: boolean;
   setView: (view: string) => void;
   lang?: Language;
+  adsterraLink: string;
+  adsterraActive: boolean;
 }
 
-export default function PDFToImageTool({ darkMode, setView, lang }: PDFToImageToolProps) {
+export default function PDFToImageTool({ darkMode, setView, lang, adsterraLink, adsterraActive }: PDFToImageToolProps) {
   const activeLang = lang || 'id';
   const [file, setFile] = useState<DocumentFile | null>(null);
   const [format, setFormat] = useState<'png' | 'jpeg'>('png');
@@ -329,6 +331,10 @@ export default function PDFToImageTool({ darkMode, setView, lang }: PDFToImageTo
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    
+    if (adsterraActive && adsterraLink) {
+      window.open(adsterraLink, '_blank', 'noopener,noreferrer');
+    }
   };
 
   const resetAll = () => {
@@ -352,6 +358,10 @@ export default function PDFToImageTool({ darkMode, setView, lang }: PDFToImageTo
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
+          
+          if (adsterraActive && adsterraLink) {
+            window.open(adsterraLink, '_blank', 'noopener,noreferrer');
+          }
         } else if (file && rawFileBytes && !isProcessing && pagesImages.length === 0) {
           handleExtractImages();
         }
@@ -359,7 +369,7 @@ export default function PDFToImageTool({ darkMode, setView, lang }: PDFToImageTo
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [zipUrl, file, rawFileBytes, isProcessing, pagesImages, format, quality, rangeMode, customRange]);
+  }, [zipUrl, file, rawFileBytes, isProcessing, pagesImages, format, quality, rangeMode, customRange, adsterraActive, adsterraLink]);
 
   return (
     <div id="pdf-to-image-tool-container" className="max-w-4xl mx-auto px-4 py-8">
@@ -693,10 +703,20 @@ export default function PDFToImageTool({ darkMode, setView, lang }: PDFToImageTo
 
                   <div className="flex gap-2 w-full sm:w-auto">
                     {zipUrl && (
-                      <a 
-                        href={zipUrl}
-                        download={`${file.name.replace(/\.[^/.]+$/, "")}_Images.zip`}
-                        className={`flex-1 sm:flex-initial text-center px-4 py-2.5 text-xs font-sans font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
+                      <button 
+                        onClick={() => {
+                          const link = document.createElement('a');
+                          link.href = zipUrl;
+                          link.download = `${file.name.replace(/\.[^/.]+$/, "")}_Images.zip`;
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                          
+                          if (adsterraActive && adsterraLink) {
+                            window.open(adsterraLink, '_blank', 'noopener,noreferrer');
+                          }
+                        }}
+                        className={`flex-1 sm:flex-initial text-center px-4 py-2.5 text-xs font-sans font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all cursor-pointer ${
                           darkMode 
                             ? 'bg-[#eae7e0] text-[#121211] hover:bg-white' 
                             : 'bg-[#1c1c1a] text-[#FAF9F5] hover:bg-stone-800'
@@ -704,7 +724,7 @@ export default function PDFToImageTool({ darkMode, setView, lang }: PDFToImageTo
                       >
                         <Download className="w-3.5 h-3.5" />
                         Download ZIP
-                      </a>
+                      </button>
                     )}
                     
                     <button

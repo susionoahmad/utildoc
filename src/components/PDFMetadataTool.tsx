@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import { PDFDocument } from 'pdf-lib';
 import { 
   FileText, Upload, Settings, ShieldCheck, Info, Calendar, User, Tag, 
-  Sparkles, AlertCircle, Copy, Check, Eye
+  Sparkles, AlertCircle, Copy, Check, Eye, Download
 } from 'lucide-react';
 import { DocumentFile } from '../types';
 import { MOCK_FILES } from '../data';
@@ -14,6 +14,8 @@ interface PDFMetadataToolProps {
   darkMode: boolean;
   setView: (view: string) => void;
   lang?: Language;
+  adsterraLink: string;
+  adsterraActive: boolean;
 }
 
 interface ParsedMetadata {
@@ -31,7 +33,7 @@ interface ParsedMetadata {
   isEncrypted: boolean;
 }
 
-export default function PDFMetadataTool({ darkMode, setView, lang }: PDFMetadataToolProps) {
+export default function PDFMetadataTool({ darkMode, setView, lang, adsterraLink, adsterraActive }: PDFMetadataToolProps) {
   const activeLang = lang || 'id';
   const [file, setFile] = useState<DocumentFile | null>(null);
   const [metadata, setMetadata] = useState<ParsedMetadata | null>(null);
@@ -219,7 +221,6 @@ export default function PDFMetadataTool({ darkMode, setView, lang }: PDFMetadata
     }
   }, [metadata]);
 
-  // Keyboard shortcut listener
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
@@ -234,6 +235,10 @@ export default function PDFMetadataTool({ darkMode, setView, lang }: PDFMetadata
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
+          
+          if (adsterraActive && adsterraLink) {
+            window.open(adsterraLink, '_blank', 'noopener,noreferrer');
+          }
         } else if (!isProcessing) {
           loadSample();
         }
@@ -241,7 +246,7 @@ export default function PDFMetadataTool({ darkMode, setView, lang }: PDFMetadata
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [metadata, file, isProcessing]);
+  }, [metadata, file, isProcessing, adsterraActive, adsterraLink]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -413,12 +418,40 @@ export default function PDFMetadataTool({ darkMode, setView, lang }: PDFMetadata
 
               <div className={`mt-6 pt-6 border-t border-dashed ${darkMode ? 'border-stone-800/60' : 'border-stone-200'}`}>
                 <button
+                  onClick={() => {
+                    if (metadata && file) {
+                      const jsonStr = JSON.stringify(metadata, null, 2);
+                      const blob = new Blob([jsonStr], { type: 'application/json' });
+                      const url = URL.createObjectURL(blob);
+                      const link = document.createElement('a');
+                      link.href = url;
+                      link.download = `${file.name.replace('.pdf', '')}_metadata_report.json`;
+                      document.body.appendChild(link);
+                      link.click();
+                      document.body.removeChild(link);
+                      
+                      if (adsterraActive && adsterraLink) {
+                        window.open(adsterraLink, '_blank', 'noopener,noreferrer');
+                      }
+                    }
+                  }}
+                  className={`w-full py-3 mb-3 rounded-none font-sans font-bold uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 cursor-pointer ${
+                    darkMode 
+                      ? 'bg-[#eae7e0] text-black hover:bg-white' 
+                      : 'bg-[#1c1c1a] text-white hover:bg-stone-800'
+                  }`}
+                >
+                  <Download className="w-4 h-4" />
+                  Download Metadata Report
+                </button>
+
+                <button
                   onClick={resetInspector}
                   className={`w-full py-3 rounded-none font-sans font-bold uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 cursor-pointer ${
                     darkMode 
-                      ? 'bg-[#bfa15f] text-black hover:opacity-90' 
-                      : 'bg-[#8c1d1a] text-white hover:opacity-90'
-                  }`}
+                      ? 'border-[#3a3a38] text-stone-300 hover:bg-[#121211]/40' 
+                      : 'border-[#d8d4ca] text-stone-700 hover:bg-stone-50'
+                  } border`}
                 >
                   Inspect Another Document
                 </button>

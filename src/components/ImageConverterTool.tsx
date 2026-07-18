@@ -33,9 +33,11 @@ interface ImageConverterToolProps {
   darkMode: boolean;
   setView: (view: string) => void;
   lang?: Language;
+  adsterraLink: string;
+  adsterraActive: boolean;
 }
 
-export default function ImageConverterTool({ darkMode, setView, lang }: ImageConverterToolProps) {
+export default function ImageConverterTool({ darkMode, setView, lang, adsterraLink, adsterraActive }: ImageConverterToolProps) {
   const activeLang = lang || 'id';
   const [images, setImages] = useState<ImageFileItem[]>([]);
   const [targetFormat, setTargetFormat] = useState<'png' | 'jpeg' | 'webp'>('png');
@@ -341,6 +343,10 @@ export default function ImageConverterTool({ darkMode, setView, lang }: ImageCon
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    
+    if (adsterraActive && adsterraLink) {
+      window.open(adsterraLink, '_blank', 'noopener,noreferrer');
+    }
   };
 
   const totalOriginalSize = images.reduce((acc, img) => acc + img.size, 0);
@@ -348,7 +354,6 @@ export default function ImageConverterTool({ darkMode, setView, lang }: ImageCon
   const sizeSavings = totalOriginalSize - totalConvertedSize;
   const savingsPercent = totalOriginalSize > 0 ? (sizeSavings / totalOriginalSize) * 100 : 0;
 
-  // Keyboard shortcut listener
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
@@ -360,6 +365,10 @@ export default function ImageConverterTool({ darkMode, setView, lang }: ImageCon
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
+          
+          if (adsterraActive && adsterraLink) {
+            window.open(adsterraLink, '_blank', 'noopener,noreferrer');
+          }
         } else if (images.length > 0 && !isProcessing && convertedImages.length === 0) {
           handleConvertImages();
         }
@@ -367,7 +376,7 @@ export default function ImageConverterTool({ darkMode, setView, lang }: ImageCon
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [zipUrl, images, isProcessing, convertedImages, targetFormat, quality, scalePercent]);
+  }, [zipUrl, images, isProcessing, convertedImages, targetFormat, quality, scalePercent, adsterraActive, adsterraLink]);
 
   return (
     <div id="image-converter-tool-container" className="max-w-4xl mx-auto px-4 py-8">
@@ -677,10 +686,20 @@ export default function ImageConverterTool({ darkMode, setView, lang }: ImageCon
                   <p><span className="font-sans font-bold uppercase tracking-wider text-[9px] block text-stone-400 dark:text-stone-500">Scale Viewport</span>{scalePercent}% Dimension</p>
                 </div>
 
-                <a 
-                  href={zipUrl}
-                  download={`UtilDoc_Converted_Images_${targetFormat.toUpperCase()}.zip`}
-                  className={`w-full py-3 text-xs font-sans font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
+                <button 
+                  onClick={() => {
+                    const link = document.createElement('a');
+                    link.href = zipUrl;
+                    link.download = `UtilDoc_Converted_Images_${targetFormat.toUpperCase()}.zip`;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    
+                    if (adsterraActive && adsterraLink) {
+                      window.open(adsterraLink, '_blank', 'noopener,noreferrer');
+                    }
+                  }}
+                  className={`w-full py-3 text-xs font-sans font-bold uppercase tracking-widest flex items-center justify-center gap-2 transition-all cursor-pointer ${
                     darkMode 
                       ? 'bg-[#eae7e0] text-[#121211] hover:bg-white' 
                       : 'bg-[#1c1c1a] text-[#FAF9F5] hover:bg-stone-800'
@@ -688,7 +707,7 @@ export default function ImageConverterTool({ darkMode, setView, lang }: ImageCon
                 >
                   <Download className="w-4 h-4" />
                   Download ZIP ({formatSize(totalConvertedSize)})
-                </a>
+                </button>
 
                 <button
                   onClick={() => {

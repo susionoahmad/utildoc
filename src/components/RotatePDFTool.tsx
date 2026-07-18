@@ -13,9 +13,11 @@ interface RotatePDFToolProps {
   darkMode: boolean;
   setView: (view: string) => void;
   lang?: Language;
+  adsterraLink: string;
+  adsterraActive: boolean;
 }
 
-export default function RotatePDFTool({ darkMode, setView, lang }: RotatePDFToolProps) {
+export default function RotatePDFTool({ darkMode, setView, lang, adsterraLink, adsterraActive }: RotatePDFToolProps) {
   const activeLang = lang || 'id';
   const [file, setFile] = useState<DocumentFile | null>(null);
   const [pageRotations, setPageRotations] = useState<Record<number, number>>({}); // page index (0-based) -> rotation (0, 90, 180, 270)
@@ -324,7 +326,6 @@ export default function RotatePDFTool({ darkMode, setView, lang }: RotatePDFTool
     }
   };
 
-  // Keyboard shortcut listener
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
@@ -336,6 +337,10 @@ export default function RotatePDFTool({ darkMode, setView, lang }: RotatePDFTool
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
+          
+          if (adsterraActive && adsterraLink) {
+            window.open(adsterraLink, '_blank', 'noopener,noreferrer');
+          }
         } else if (file && rawFileBytes && !isProcessing) {
           applyRotations();
         }
@@ -343,7 +348,7 @@ export default function RotatePDFTool({ darkMode, setView, lang }: RotatePDFTool
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [result, file, rawFileBytes, isProcessing]);
+  }, [result, file, rawFileBytes, isProcessing, adsterraActive, adsterraLink]);
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
@@ -417,10 +422,20 @@ export default function RotatePDFTool({ darkMode, setView, lang }: RotatePDFTool
                 </div>
               </div>
 
-              <a
-                href={result.downloadUrl}
-                download={result.name}
-                className={`px-5 py-2.5 rounded-none font-sans font-bold text-xs uppercase tracking-widest transition-all flex items-center gap-2 w-full sm:w-auto justify-center ${
+              <button
+                onClick={() => {
+                  const link = document.createElement('a');
+                  link.href = result.downloadUrl;
+                  link.download = result.name;
+                  document.body.appendChild(link);
+                  link.click();
+                  document.body.removeChild(link);
+                  
+                  if (adsterraActive && adsterraLink) {
+                    window.open(adsterraLink, '_blank', 'noopener,noreferrer');
+                  }
+                }}
+                className={`px-5 py-2.5 rounded-none font-sans font-bold text-xs uppercase tracking-widest transition-all flex items-center gap-2 w-full sm:w-auto justify-center cursor-pointer ${
                   darkMode 
                     ? 'bg-[#bfa15f] text-black hover:opacity-90' 
                     : 'bg-[#8c1d1a] text-white hover:opacity-90'
@@ -428,7 +443,7 @@ export default function RotatePDFTool({ darkMode, setView, lang }: RotatePDFTool
               >
                 <Download className="w-4 h-4" />
                 Download Document
-              </a>
+              </button>
             </div>
 
             <button

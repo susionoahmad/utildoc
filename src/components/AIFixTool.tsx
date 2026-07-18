@@ -13,6 +13,8 @@ interface AIFixToolProps {
   darkMode: boolean;
   setView: (view: string) => void;
   lang?: Language;
+  adsterraLink: string;
+  adsterraActive: boolean;
 }
 
 const PRESETS = [
@@ -42,7 +44,7 @@ const PRESETS = [
   }
 ];
 
-export default function AIFixTool({ darkMode, setView, lang }: AIFixToolProps) {
+export default function AIFixTool({ darkMode, setView, lang, adsterraLink, adsterraActive }: AIFixToolProps) {
   const activeLang = lang || 'id';
   // Input Selection
   const [inputMode, setInputMode] = useState<'text' | 'file'>('text');
@@ -258,6 +260,10 @@ export default function AIFixTool({ darkMode, setView, lang }: AIFixToolProps) {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    
+    if (adsterraActive && adsterraLink) {
+      window.open(adsterraLink, '_blank', 'noopener,noreferrer');
+    }
   };
 
   const getHighlightedText = (text: string, highlight: string) => {

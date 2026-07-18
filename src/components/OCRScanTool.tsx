@@ -13,6 +13,8 @@ interface OCRScanToolProps {
   darkMode: boolean;
   setView: (view: string) => void;
   lang?: Language;
+  adsterraLink: string;
+  adsterraActive: boolean;
 }
 
 const PRESETS = [
@@ -42,7 +44,7 @@ const PRESETS = [
   }
 ];
 
-export default function OCRScanTool({ darkMode, setView, lang }: OCRScanToolProps) {
+export default function OCRScanTool({ darkMode, setView, lang, adsterraLink, adsterraActive }: OCRScanToolProps) {
   const activeLang = lang || 'id';
   const [file, setFile] = useState<DocumentFile | null>(null);
   const [fileData, setFileData] = useState<string | null>(null);
@@ -232,6 +234,10 @@ export default function OCRScanTool({ darkMode, setView, lang }: OCRScanToolProp
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    
+    if (adsterraActive && adsterraLink) {
+      window.open(adsterraLink, '_blank', 'noopener,noreferrer');
+    }
   };
 
   // Function to highlight search query within extracted text

@@ -48,9 +48,11 @@ interface PasswordProtectPDFToolProps {
   darkMode: boolean;
   setView: (view: string) => void;
   lang?: Language;
+  adsterraLink: string;
+  adsterraActive: boolean;
 }
 
-export default function PasswordProtectPDFTool({ darkMode, setView, lang }: PasswordProtectPDFToolProps) {
+export default function PasswordProtectPDFTool({ darkMode, setView, lang, adsterraLink, adsterraActive }: PasswordProtectPDFToolProps) {
   const activeLang = lang || 'id';
   const [file, setFile] = useState<DocumentFile | null>(null);
   const [rawFileBytes, setRawFileBytes] = useState<Uint8Array | null>(null);
@@ -737,7 +739,6 @@ export default function PasswordProtectPDFTool({ darkMode, setView, lang }: Pass
     ? 'border-[#3a3a38] text-stone-300 hover:bg-[#1c1c1a]'
     : 'border-[#d8d4ca] text-stone-700 hover:bg-[#eae7e0]/20';
 
-  // Keyboard shortcut listener
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
@@ -749,6 +750,10 @@ export default function PasswordProtectPDFTool({ darkMode, setView, lang }: Pass
           document.body.appendChild(link);
           link.click();
           document.body.removeChild(link);
+          
+          if (adsterraActive && adsterraLink) {
+            window.open(adsterraLink, '_blank', 'noopener,noreferrer');
+          }
         } else if (file && rawFileBytes && !isProcessing) {
           if (activeTab === 'encrypt') {
             handleEncrypt();
@@ -762,7 +767,7 @@ export default function PasswordProtectPDFTool({ darkMode, setView, lang }: Pass
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [result, file, rawFileBytes, isProcessing, activeTab, password, confirmPassword, decryptPassword]);
+  }, [result, file, rawFileBytes, isProcessing, activeTab, password, confirmPassword, decryptPassword, adsterraActive, adsterraLink]);
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-16 font-sans">
@@ -835,15 +840,25 @@ export default function PasswordProtectPDFTool({ darkMode, setView, lang }: Pass
           </div>
 
           <div className="flex justify-center gap-4">
-            <a
+            <button
               id="download-secured-pdf-btn"
-              href={result.downloadUrl}
-              download={result.name}
-              className={`px-8 py-3 text-xs font-sans font-bold uppercase tracking-widest inline-flex items-center gap-2 shadow-sm transition-all ${mainBtnClass}`}
+              onClick={() => {
+                const link = document.createElement('a');
+                link.href = result.downloadUrl;
+                link.download = result.name;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                if (adsterraActive && adsterraLink) {
+                  window.open(adsterraLink, '_blank', 'noopener,noreferrer');
+                }
+              }}
+              className={`px-8 py-3 text-xs font-sans font-bold uppercase tracking-widest inline-flex items-center gap-2 shadow-sm transition-all cursor-pointer ${mainBtnClass}`}
             >
               <FileDown className="w-4 h-4" />
               <span>Download File</span>
-            </a>
+            </button>
             <button
               id="reset-encrypt-btn"
               onClick={resetAll}
